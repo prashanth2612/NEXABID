@@ -1,0 +1,45 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node dependencies
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.*
+
+# Build folders
+dist/
+build/
+out/
+coverage/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+
+# Archives
+*.zip
+*.tar
+*.gz
+*.rar
