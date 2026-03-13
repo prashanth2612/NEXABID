@@ -1,0 +1,31 @@
+{
+  "name": "nexabid",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "nexabid-client",
+    "nexabid-manufacturer",
+    "nexabid-admin",
+    "nexabid-backend"
+  ],
+  "scripts": {
+    "dev:client": "npm run dev --workspace=nexabid-client",
+    "dev:manufacturer": "npm run dev --workspace=nexabid-manufacturer",
+    "dev:admin": "npm run dev --workspace=nexabid-admin",
+    "dev:backend": "npm run dev --workspace=nexabid-backend",
+    "dev:all": "npx concurrently \"npm run dev:client\" \"npm run dev:manufacturer\"",
+    "build:client": "npm run build --workspace=nexabid-client",
+    "build:manufacturer": "npm run build --workspace=nexabid-manufacturer",
+    "build:admin": "npm run build --workspace=nexabid-admin",
+    "build:backend": "npm run build --workspace=nexabid-backend",
+    "build:all": "npm run build --workspaces",
+    "lint:all": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}
