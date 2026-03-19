@@ -3,11 +3,7 @@ import { Bid } from './bid.model'
 import { Order } from '../orders/order.model'
 import { createError } from '../../middleware/errorHandler'
 import type { CreateBidInput, RejectBidInput } from './bid.schema'
-<<<<<<< HEAD
 import { notifyBidReceived, notifyBidAccepted, notifyBidRejected, emailBidAccepted, emailBidRejected, emailBidReceived, emailOrderConfirmed } from '../../shared/utils/notify'
-=======
-import { notifyBidReceived, notifyBidAccepted, notifyBidRejected } from '../../shared/utils/notify'
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
 export const submitBid = async (manufacturerId: string, data: CreateBidInput) => {
   const order = await Order.findById(data.orderId)
@@ -46,14 +42,11 @@ export const submitBid = async (manufacturerId: string, data: CreateBidInput) =>
     status: 'bidding',
   })
 
-<<<<<<< HEAD
   // Notify client — in-app + email
   const mfrUser = await (await import('../auth/auth.model')).User.findById(manufacturerId).select('fullName')
   notifyBidReceived(order.clientId.toString(), data.orderId, order.title, mfrUser?.fullName || 'A manufacturer').catch(() => {})
   emailBidReceived(order.clientId.toString(), order.title, data.orderId, mfrUser?.fullName || 'A manufacturer', data.proposedPrice).catch(() => {})
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   return bid
 }
 
@@ -106,7 +99,6 @@ export const acceptBid = async (bidId: string, clientId: string) => {
   order.escrowAmount = bid.proposedPrice
   await order.save()
 
-<<<<<<< HEAD
   // Notify winning manufacturer — in-app + email
   const mfrId = bid.manufacturerId.toString()
   notifyBidAccepted(mfrId, bid.orderId.toString(), order.title).catch(() => {})
@@ -121,8 +113,6 @@ export const acceptBid = async (bidId: string, clientId: string) => {
     emailBidRejected(rbMfrId, order.title).catch(() => {})
   }
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   return { bid, order }
 }
 
@@ -137,10 +127,7 @@ export const rejectBid = async (bidId: string, clientId: string, data: RejectBid
   if (data.clientNote) bid.clientNote = data.clientNote
   await bid.save()
   notifyBidRejected(bid.manufacturerId.toString(), bid.orderId.toString(), order.title).catch(() => {})
-<<<<<<< HEAD
   emailBidRejected(bid.manufacturerId.toString(), order.title).catch(() => {})
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   await Order.findByIdAndUpdate(bid.orderId, { $inc: { totalBids: -1 } })
 

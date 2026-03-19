@@ -39,7 +39,6 @@ export interface IOrder extends Document {
   deliveryDate: Date
   deliveryLocation: string
   specialNotes?: string
-<<<<<<< HEAD
   // Logistics / shipping
   trackingNumber?: string
   trackingUrl?: string
@@ -48,9 +47,6 @@ export interface IOrder extends Document {
   estimatedDelivery?: Date
   adminNotes?: { note: string; status: string; changedAt: Date; changedBy?: string }[]
   attachments: { name: string; type: string; data: string; size: number }[]
-=======
-  attachments: string[]
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   status: OrderStatus
   acceptedManufacturerId?: mongoose.Types.ObjectId
   acceptedBidId?: mongoose.Types.ObjectId
@@ -92,7 +88,6 @@ const orderSchema = new Schema<IOrder>(
     budgetMax: { type: Number },
     deliveryDate: { type: Date, required: true },
     deliveryLocation: { type: String, required: true, trim: true },
-<<<<<<< HEAD
     specialNotes:       { type: String, trim: true },
     trackingNumber:     { type: String, trim: true },
     trackingUrl:        { type: String, trim: true },
@@ -106,10 +101,6 @@ const orderSchema = new Schema<IOrder>(
       data: { type: String },
       size: { type: Number },
     }],
-=======
-    specialNotes: { type: String, trim: true },
-    attachments: [{ type: String }],
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
     status: {
       type: String,
       enum: ['draft', 'posted', 'bidding', 'confirmed', 'manufacturing', 'shipped', 'delivered', 'completed', 'cancelled'],
@@ -171,11 +162,8 @@ orderSchema.pre('save', function (next) {
 orderSchema.index({ clientId: 1, status: 1 })
 orderSchema.index({ category: 1, status: 1 })
 orderSchema.index({ status: 1, createdAt: -1 })
-<<<<<<< HEAD
 orderSchema.index({ acceptedManufacturerId: 1, status: 1 })
 orderSchema.index({ escrowStatus: 1 })
 orderSchema.index({ createdAt: -1 })
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
 export const Order = mongoose.model<IOrder>('Order', orderSchema)

@@ -112,7 +112,6 @@ export const handleWebhook = async (req: AuthRequest, res: Response, next: NextF
     res.json({ received: true })
   } catch (e) { next(e) }
 }
-<<<<<<< HEAD
 
 export const raiseDispute = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -139,5 +138,3 @@ export const simulatePayment = async (req: AuthRequest, res: Response, next: Nex
     sendSuccess(res, result, '✅ Payment simulated — escrow active, order moved to manufacturing')
   } catch (e) { next(e) }
 }
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c

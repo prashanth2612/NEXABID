@@ -82,7 +82,6 @@ export const getOrderStats = async (req: AuthRequest, res: Response, next: NextF
     sendSuccess(res, stats, 'Stats fetched')
   } catch (e) { next(e) }
 }
-<<<<<<< HEAD
 
 export const shipOrder = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -146,5 +145,3 @@ export const shipOrder = async (req: AuthRequest, res: Response, next: NextFunct
     sendSuccess(res, { order, deliveryAddress, shipRef }, 'Order marked as shipped — client notified')
   } catch (e) { next(e) }
 }
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c

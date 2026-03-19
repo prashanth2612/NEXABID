@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
-<<<<<<< HEAD
 import { Search, Loader2, Users, CheckCircle2, XCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
-=======
-import { Search, Loader2, Users, CheckCircle2, XCircle, MoreVertical } from 'lucide-react'
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 import api from '@/lib/api'
 import { cn, fmtDate } from '@/lib/utils'
 
@@ -116,21 +112,12 @@ export default function UsersPage() {
             ) : filtered.map(u => (
               <div key={u.id}
                 className="grid grid-cols-[2fr_2fr_1fr_1fr_1fr_1fr_80px] gap-4 px-5 py-4 items-center hover:bg-gray-50/50 transition-colors">
-<<<<<<< HEAD
                 <Link to={`/users/${u.id}`} className="flex items-center gap-2.5 min-w-0 group">
                   <div className="w-8 h-8 bg-[#0A0A0A] rounded-full flex items-center justify-center flex-shrink-0">
                     <span className="text-white text-xs font-bold">{u.fullName.charAt(0)}</span>
                   </div>
                   <p className="text-sm font-medium text-[#0A0A0A] truncate group-hover:underline">{u.fullName}</p>
                 </Link>
-=======
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 bg-[#0A0A0A] rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-white text-xs font-bold">{u.fullName.charAt(0)}</span>
-                  </div>
-                  <p className="text-sm font-medium text-[#0A0A0A] truncate">{u.fullName}</p>
-                </div>
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
                 <p className="text-sm text-gray-600 truncate">{u.email}</p>
                 <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full capitalize w-fit',
                   u.role === 'client' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'

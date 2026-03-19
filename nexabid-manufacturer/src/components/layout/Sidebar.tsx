@@ -1,11 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Layers, Package,
-<<<<<<< HEAD
   MessageSquare, CreditCard, User, LogOut, ChevronRight, Settings,
-=======
-  MessageSquare, CreditCard, User, LogOut, ChevronRight,
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -31,10 +27,7 @@ const navItems = [
     group: 'Account',
     items: [
       { label: 'Profile',      icon: User,             path: '/profile' },
-<<<<<<< HEAD
       { label: 'Settings',     icon: Settings,         path: '/settings' },
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
     ],
   },
 ]

@@ -13,12 +13,9 @@ router.use(authenticate)
 // Client initiates payment for a confirmed order
 router.post('/initiate', authorizeRoles('client'), paymentController.initiatePayment)
 
-<<<<<<< HEAD
 // DEV ONLY — simulate payment without going through Razorpay
 router.post('/simulate', authorizeRoles('client'), paymentController.simulatePayment)
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 // Client verifies Razorpay payment after checkout
 router.post('/verify', authorizeRoles('client'), paymentController.verifyPayment)
 
@@ -40,13 +37,10 @@ router.post('/:id/confirm-otp', authorizeRoles('client'), paymentController.veri
 // Client requests refund
 router.post('/:id/refund', authorizeRoles('client'), paymentController.initiateRefund)
 
-<<<<<<< HEAD
 // Client raises a dispute on an escrowed payment
 router.post('/:id/dispute', authorizeRoles('client'), paymentController.raiseDispute)
 
 // Admin resolves dispute (release to manufacturer OR refund to client)
 router.post('/:id/resolve-dispute', authorizeRoles('admin'), paymentController.resolveDispute)
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 export default router

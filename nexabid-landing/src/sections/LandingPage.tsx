@@ -26,7 +26,7 @@ const CATEGORIES = [
   { name: 'Furniture & Wood', img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=95&auto=format&fit=crop', count: '150+ manufacturers' },
   { name: 'Chemicals & Pharma', img: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=900&q=95&auto=format&fit=crop', count: '120+ manufacturers' },
   { name: 'Plastics & Polymers', img: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=900&q=95&auto=format&fit=crop', count: '95+ manufacturers' },
-  { name: 'Paper & Packaging', img: 'https://plus.unsplash.com/premium_photo-1683120796013-f2f18451a907?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D?w=900&q=95&auto=format&fit=crop', count: '110+ manufacturers' },
+  { name: 'Paper & Packaging', img: 'https://images.unsplash.com/photo-1607469256872-49e26e5a6a5a?w=900&q=95&auto=format&fit=crop', count: '110+ manufacturers' },
 ]
 
 const HOW_IT_WORKS = [

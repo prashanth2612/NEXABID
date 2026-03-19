@@ -55,7 +55,6 @@ router.get('/users', authenticate, authorizeRoles('admin'), async (_req: AuthReq
   } catch (e) { next(e) }
 })
 
-<<<<<<< HEAD
 // ── GET /admin/users/:id — full user detail with history ──────────
 router.get('/users/:id', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -89,8 +88,6 @@ router.get('/users/:id', authenticate, authorizeRoles('admin'), async (req: Auth
   } catch (e) { next(e) }
 })
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 // ── PATCH /admin/users/:id/toggle-active ─────────────────────────
 router.patch('/users/:id/toggle-active', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -136,7 +133,6 @@ router.get('/payments', authenticate, authorizeRoles('admin'), async (_req: Auth
   } catch (e) { next(e) }
 })
 
-<<<<<<< HEAD
 // ── GET /admin/orders/:id — single order detail ──────────────────
 router.get('/orders/:id', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -179,8 +175,6 @@ router.get('/bids/:id', authenticate, authorizeRoles('admin'), async (req: AuthR
   } catch (e) { next(e) }
 })
 
-=======
->>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 // ── POST /admin/seed — one-time admin creation (no auth required) ─
 // Disabled automatically once an admin exists
 router.post('/seed', async (req: any, res: Response, next: NextFunction): Promise<void> => {
