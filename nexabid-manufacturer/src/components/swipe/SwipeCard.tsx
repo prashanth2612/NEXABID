@@ -239,9 +239,9 @@ export default function SwipeCard({ order, onSwipe, stackIndex }: SwipeCardProps
               </p>
             </div>
             <div className="bg-gray-50 rounded-xl p-3 text-center">
-              <p className="text-xs text-gray-400 mb-1">Due Date</p>
-              <p className="text-sm font-bold text-[#0A0A0A]">{formatDate(order.deliveryDate)}</p>
-              <p className="text-[10px] text-gray-400">{order.deliveryDays} days</p>
+              <p className="text-xs text-gray-400 mb-1">Mfr. Days</p>
+              <p className="text-sm font-bold text-[#0A0A0A]">{order.deliveryDays}d</p>
+              <p className="text-[10px] text-gray-400">to produce</p>
             </div>
           </div>
 

@@ -157,8 +157,14 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
     throw createError(`Invalid OTP. ${5 - payment.otpAttempts} attempts remaining.`, 400)
   }
 
-  // OTP correct — release escrow
+  // OTP correct — release escrow, calculate 2.5% platform commission
+  const PLATFORM_FEE_RATE = 0.025
+  const platformFee = Math.round(payment.amount * PLATFORM_FEE_RATE)
+  const manufacturerPayout = payment.amount - platformFee
+
   payment.status = 'released'
+  payment.platformFee = platformFee
+  payment.manufacturerPayout = manufacturerPayout
   payment.otpVerifiedAt = new Date()
   payment.releasedAt = new Date()
   await payment.save()
@@ -180,7 +186,13 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
             <h2 style="color:#0A0A0A">Payment Released!</h2>
-            <p>Great news! The client has confirmed delivery and your payment of <strong>₹${payment.amount.toLocaleString('en-IN')}</strong> has been released from escrow.</p>
+            <p>Great news! The client has confirmed delivery and your payment has been released from escrow.</p>
+            <div style="background:#f7f7f7;border-radius:12px;padding:16px;margin:16px 0">
+              <p style="margin:0 0 8px;font-size:13px;color:#6b7280">Payment Breakdown</p>
+              <p style="margin:4px 0;font-size:14px">Order Amount: <strong>₹${payment.amount.toLocaleString('en-IN')}</strong></p>
+              <p style="margin:4px 0;font-size:14px;color:#dc2626">Platform Fee (2.5%): <strong>−₹${platformFee.toLocaleString('en-IN')}</strong></p>
+              <p style="margin:4px 0;font-size:16px;color:#059669;font-weight:bold">Your Payout: ₹${manufacturerPayout.toLocaleString('en-IN')}</p>
+            </div>
             <p>The funds will be transferred to your registered bank account within 2-3 business days as per Razorpay's settlement schedule.</p>
             <p style="color:#6b7280;font-size:13px">Thank you for completing the order successfully.</p>
           </div>
@@ -243,4 +255,110 @@ export const getMyPayments = async (clientId: string) => {
     .populate('orderId', 'title orderNumber category')
     .sort({ createdAt: -1 })
   return payments
+}
+
+// ─── 8. Raise Dispute ─────────────────────────────────────────────
+export const raiseDispute = async (paymentId: string, clientId: string, reason: string) => {
+  const payment = await Payment.findById(paymentId)
+  if (!payment) throw createError('Payment not found', 404)
+  if (payment.clientId.toString() !== clientId) throw createError('Access denied', 403)
+  if (!['escrowed', 'paid'].includes(payment.status)) throw createError('Disputes can only be raised on active escrow payments', 400)
+  if (payment.disputedAt) throw createError('A dispute is already open for this payment', 409)
+
+  payment.status = 'disputed'
+  payment.disputedAt = new Date()
+  payment.disputeReason = reason
+  await payment.save()
+
+  await Order.findByIdAndUpdate(payment.orderId, { status: 'cancelled' })
+
+  // Notify admin via in-app notification (admin notifications use userId='admin')
+  const { User } = await import('../auth/auth.model')
+  const admins = await User.find({ role: 'admin' }).select('_id')
+  const { createNotification } = await import('../../shared/utils/notify')
+  for (const admin of admins) {
+    createNotification(
+      admin._id.toString(), 'order_update' as any,
+      '⚠️ Dispute Raised',
+      `Client raised a dispute: ${reason.slice(0, 80)}`,
+      `/payments`
+    ).catch(() => {})
+  }
+
+  return payment
+}
+
+// ─── 9. Resolve Dispute (admin only) ─────────────────────────────
+export const resolveDispute = async (paymentId: string, resolution: 'release' | 'refund', adminNote: string) => {
+  const payment = await Payment.findById(paymentId)
+  if (!payment) throw createError('Payment not found', 404)
+  if (payment.status !== 'disputed') throw createError('Payment is not in disputed state', 400)
+
+  if (resolution === 'release') {
+    const PLATFORM_FEE_RATE = 0.025
+    const platformFee = Math.round(payment.amount * PLATFORM_FEE_RATE)
+    payment.platformFee = platformFee
+    payment.manufacturerPayout = payment.amount - platformFee
+    payment.status = 'released'
+    payment.releasedAt = new Date()
+    await Order.findByIdAndUpdate(payment.orderId, { escrowStatus: 'released', status: 'completed' })
+  } else {
+    payment.status = 'refunded'
+    payment.refundedAt = new Date()
+    await Order.findByIdAndUpdate(payment.orderId, { escrowStatus: 'refunded', status: 'cancelled' })
+  }
+
+  payment.disputeResolvedAt = new Date()
+  payment.disputeResolution = adminNote
+  await payment.save()
+
+  return payment
+}
+
+// ─── DEV ONLY: Simulate Payment (bypasses Razorpay) ──────────────
+export const simulatePayment = async (orderId: string, clientId: string) => {
+  const order = await Order.findById(orderId).populate('clientId', 'email fullName')
+  if (!order) throw createError('Order not found', 404)
+  if (order.clientId._id.toString() !== clientId) throw createError('Access denied', 403)
+
+  const amount = order.escrowAmount || order.fixedPrice || order.budgetMax || 0
+  if (amount <= 0) throw createError('Invalid order amount', 400)
+
+  // Upsert payment record directly as escrowed
+  let payment = await Payment.findOne({ orderId })
+  if (!payment) {
+    payment = await Payment.create({
+      orderId:        new mongoose.Types.ObjectId(orderId),
+      clientId:       new mongoose.Types.ObjectId(clientId),
+      manufacturerId: order.acceptedManufacturerId,
+      amount,
+      currency: 'INR',
+      razorpayOrderId: `sim_${Date.now()}`,
+      razorpayPaymentId: `sim_pay_${Date.now()}`,
+      status: 'escrowed',
+    })
+  } else {
+    payment.status = 'escrowed'
+    payment.razorpayPaymentId = `sim_pay_${Date.now()}`
+    await payment.save()
+  }
+
+  // Move order to manufacturing + mark escrow as escrowed
+  await Order.findByIdAndUpdate(orderId, {
+    escrowStatus: 'escrowed',
+    escrowAmount: amount,
+    status: 'manufacturing',
+  })
+
+  // Notify manufacturer
+  const { notifyPaymentEscrowed } = await import('../../shared/utils/notify')
+  if (order.acceptedManufacturerId) {
+    notifyPaymentEscrowed(
+      order.acceptedManufacturerId.toString(),
+      orderId,
+      amount
+    ).catch(() => {})
+  }
+
+  return { payment, amount, simulated: true }
 }

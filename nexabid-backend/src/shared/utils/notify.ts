@@ -47,3 +47,78 @@ export const notifyPaymentReleased = (manufacturerId: string, orderId: string, a
 
 export const notifyNewMessage = (userId: string, orderId: string, senderName: string) =>
   createNotification(userId, 'new_message', 'New Message', `${senderName} sent you a message`, `/chat/${orderId}`, { orderId })
+
+// ─── Email helper (non-blocking) ─────────────────────────────────
+import { sendEmail } from './email'
+import { User } from '../../modules/auth/auth.model'
+
+export const emailBidAccepted = async (manufacturerId: string, orderTitle: string, orderId: string, amount: number) => {
+  try {
+    const user = await User.findById(manufacturerId).select('email fullName')
+    if (!user?.email) return
+    await sendEmail({
+      to: user.email,
+      subject: `NexaBid — Your bid was accepted! 🎉`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#0A0A0A">Bid Accepted!</h2>
+          <p>Hi ${user.fullName}, your bid of <strong>₹${amount.toLocaleString('en-IN')}</strong> on "<strong>${orderTitle}</strong>" has been accepted by the client.</p>
+          <p>The client will now pay into escrow. Once confirmed, you can start production.</p>
+          <a href="http://localhost:5174/orders/${orderId}" style="display:inline-block;background:#0A0A0A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">View Order</a>
+        </div>`,
+    })
+  } catch {}
+}
+
+export const emailBidRejected = async (manufacturerId: string, orderTitle: string) => {
+  try {
+    const user = await User.findById(manufacturerId).select('email fullName')
+    if (!user?.email) return
+    await sendEmail({
+      to: user.email,
+      subject: `NexaBid — Bid update on "${orderTitle}"`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#0A0A0A">Bid Not Selected</h2>
+          <p>Hi ${user.fullName}, unfortunately your bid on "<strong>${orderTitle}</strong>" was not selected this time.</p>
+          <p>Keep browsing orders — there are plenty of opportunities waiting for you.</p>
+          <a href="http://localhost:5174/browse" style="display:inline-block;background:#0A0A0A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Browse Orders</a>
+        </div>`,
+    })
+  } catch {}
+}
+
+export const emailBidReceived = async (clientId: string, orderTitle: string, orderId: string, manufacturerName: string, amount: number) => {
+  try {
+    const user = await User.findById(clientId).select('email fullName')
+    if (!user?.email) return
+    await sendEmail({
+      to: user.email,
+      subject: `NexaBid — New bid on "${orderTitle}"`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#0A0A0A">New Bid Received</h2>
+          <p>Hi ${user.fullName}, <strong>${manufacturerName}</strong> has submitted a bid of <strong>₹${amount.toLocaleString('en-IN')}</strong> on your order "<strong>${orderTitle}</strong>".</p>
+          <a href="http://localhost:5173/orders/${orderId}" style="display:inline-block;background:#0A0A0A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">Review Bid</a>
+        </div>`,
+    })
+  } catch {}
+}
+
+export const emailOrderConfirmed = async (manufacturerId: string, orderTitle: string, orderId: string) => {
+  try {
+    const user = await User.findById(manufacturerId).select('email fullName')
+    if (!user?.email) return
+    await sendEmail({
+      to: user.email,
+      subject: `NexaBid — Order confirmed, start production! 🚀`,
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+          <h2 style="color:#0A0A0A">Order Confirmed</h2>
+          <p>Hi ${user.fullName}, the order "<strong>${orderTitle}</strong>" is confirmed and funds are secured in escrow.</p>
+          <p>You can now start production. Click the button below to view full order details.</p>
+          <a href="http://localhost:5174/orders/${orderId}" style="display:inline-block;background:#0A0A0A;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px">View Order</a>
+        </div>`,
+    })
+  } catch {}
+}

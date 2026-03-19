@@ -23,6 +23,12 @@ export interface IUser extends Document {
   address?: string
   website?: string
   linkedin?: string
+  // Bank / payout details (manufacturer)
+  bankAccountName?: string
+  bankAccountNumber?: string
+  bankIfsc?: string
+  bankName?: string
+  upiId?: string
   refreshToken?: string
   createdAt: Date
   updatedAt: Date
@@ -72,6 +78,11 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     rating: { type: Number, default: 0, min: 0, max: 5 },
+    bankAccountName:   { type: String, trim: true },
+    bankAccountNumber: { type: String, trim: true },
+    bankIfsc:          { type: String, trim: true, uppercase: true },
+    bankName:          { type: String, trim: true },
+    upiId:             { type: String, trim: true },
     totalOrders: { type: Number, default: 0 },
     refreshToken: { type: String, select: false },
   },
@@ -91,5 +102,7 @@ const userSchema = new Schema<IUser>(
 )
 
 userSchema.index({ role: 1 })
+userSchema.index({ email: 1 }, { unique: true })
+userSchema.index({ role: 1, isActive: 1 })
 
 export const User = mongoose.model<IUser>('User', userSchema)

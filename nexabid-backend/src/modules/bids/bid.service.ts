@@ -3,7 +3,7 @@ import { Bid } from './bid.model'
 import { Order } from '../orders/order.model'
 import { createError } from '../../middleware/errorHandler'
 import type { CreateBidInput, RejectBidInput } from './bid.schema'
-import { notifyBidReceived, notifyBidAccepted, notifyBidRejected } from '../../shared/utils/notify'
+import { notifyBidReceived, notifyBidAccepted, notifyBidRejected, emailBidAccepted, emailBidRejected, emailBidReceived, emailOrderConfirmed } from '../../shared/utils/notify'
 
 export const submitBid = async (manufacturerId: string, data: CreateBidInput) => {
   const order = await Order.findById(data.orderId)
@@ -41,6 +41,11 @@ export const submitBid = async (manufacturerId: string, data: CreateBidInput) =>
     $addToSet: { acceptedBy: new mongoose.Types.ObjectId(manufacturerId) },
     status: 'bidding',
   })
+
+  // Notify client — in-app + email
+  const mfrUser = await (await import('../auth/auth.model')).User.findById(manufacturerId).select('fullName')
+  notifyBidReceived(order.clientId.toString(), data.orderId, order.title, mfrUser?.fullName || 'A manufacturer').catch(() => {})
+  emailBidReceived(order.clientId.toString(), order.title, data.orderId, mfrUser?.fullName || 'A manufacturer', data.proposedPrice).catch(() => {})
 
   return bid
 }
@@ -94,6 +99,20 @@ export const acceptBid = async (bidId: string, clientId: string) => {
   order.escrowAmount = bid.proposedPrice
   await order.save()
 
+  // Notify winning manufacturer — in-app + email
+  const mfrId = bid.manufacturerId.toString()
+  notifyBidAccepted(mfrId, bid.orderId.toString(), order.title).catch(() => {})
+  emailBidAccepted(mfrId, order.title, bid.orderId.toString(), bid.proposedPrice).catch(() => {})
+  emailOrderConfirmed(mfrId, order.title, bid.orderId.toString()).catch(() => {})
+
+  // Notify rejected manufacturers — in-app + email
+  const rejectedBids = await Bid.find({ orderId: bid.orderId, _id: { $ne: bid._id } })
+  for (const rb of rejectedBids) {
+    const rbMfrId = rb.manufacturerId.toString()
+    notifyBidRejected(rbMfrId, bid.orderId.toString(), order.title).catch(() => {})
+    emailBidRejected(rbMfrId, order.title).catch(() => {})
+  }
+
   return { bid, order }
 }
 
@@ -108,6 +127,7 @@ export const rejectBid = async (bidId: string, clientId: string, data: RejectBid
   if (data.clientNote) bid.clientNote = data.clientNote
   await bid.save()
   notifyBidRejected(bid.manufacturerId.toString(), bid.orderId.toString(), order.title).catch(() => {})
+  emailBidRejected(bid.manufacturerId.toString(), order.title).catch(() => {})
 
   await Order.findByIdAndUpdate(bid.orderId, { $inc: { totalBids: -1 } })
 

@@ -112,3 +112,29 @@ export const handleWebhook = async (req: AuthRequest, res: Response, next: NextF
     res.json({ received: true })
   } catch (e) { next(e) }
 }
+
+export const raiseDispute = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const payment = await (await import('./payment.service')).raiseDispute(req.params.id, req.user!.userId, req.body.reason || 'No reason provided')
+    sendSuccess(res, { payment }, 'Dispute raised — admin has been notified')
+  } catch (e) { next(e) }
+}
+
+export const resolveDispute = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const payment = await (await import('./payment.service')).resolveDispute(req.params.id, req.body.resolution, req.body.adminNote || '')
+    sendSuccess(res, { payment }, `Dispute resolved — payment ${req.body.resolution === 'release' ? 'released to manufacturer' : 'refunded to client'}`)
+  } catch (e) { next(e) }
+}
+
+// DEV ONLY — simulate payment without Razorpay
+export const simulatePayment = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      res.status(403).json({ success: false, message: 'Simulate payment is disabled in production' })
+      return
+    }
+    const result = await (await import('./payment.service')).simulatePayment(req.body.orderId, req.user!.userId)
+    sendSuccess(res, result, '✅ Payment simulated — escrow active, order moved to manufacturing')
+  } catch (e) { next(e) }
+}

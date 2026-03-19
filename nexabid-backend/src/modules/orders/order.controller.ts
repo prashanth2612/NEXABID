@@ -82,3 +82,66 @@ export const getOrderStats = async (req: AuthRequest, res: Response, next: NextF
     sendSuccess(res, stats, 'Stats fetched')
   } catch (e) { next(e) }
 }
+
+export const shipOrder = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { Order } = await import('./order.model')
+    const order = await Order.findById(req.params.id).populate('clientId', 'fullName email phone address city state')
+    if (!order) { res.status(404).json({ success: false, message: 'Order not found' }); return }
+    if (order.acceptedManufacturerId?.toString() !== req.user!.userId) {
+      res.status(403).json({ success: false, message: 'Access denied' }); return
+    }
+    if (!['manufacturing', 'shipped'].includes(order.status)) {
+      res.status(400).json({ success: false, message: 'Order must be in manufacturing status to ship' }); return
+    }
+
+    // Auto-generate a shipment reference — in production this would call a logistics API
+    const shipRef = `NB-${Date.now().toString(36).toUpperCase()}`
+    const client = order.clientId as any
+
+    order.status = 'shipped'
+    order.trackingNumber = shipRef
+    order.courierName = 'NexaBid Logistics'
+    order.trackingUrl = ''
+    order.shippedAt = new Date()
+    // Estimated delivery = today + deliveryDays from order
+    const estDelivery = new Date()
+    estDelivery.setDate(estDelivery.getDate() + 3) // default 3 days transit
+    order.estimatedDelivery = estDelivery
+    await order.save()
+
+    // Notify client with their delivery address
+    const { createNotification } = await import('../../shared/utils/notify')
+    const { sendEmail } = await import('../../shared/utils/email')
+
+    const deliveryAddress = [client?.address, client?.city, client?.state].filter(Boolean).join(', ') || order.deliveryLocation
+
+    createNotification(
+      order.clientId.toString(), 'order_update' as any,
+      '📦 Order Shipped!',
+      `Your order "${order.title}" has been shipped. Reference: ${shipRef}`,
+      `/orders/${order.id}`
+    ).catch(() => {})
+
+    if (client?.email) {
+      sendEmail({
+        to: client.email,
+        subject: `NexaBid — Your order has been shipped! 📦`,
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
+            <h2 style="color:#0A0A0A">Your Order Has Been Shipped!</h2>
+            <p>Hi ${client.fullName}, your order <strong>${order.title}</strong> is on its way.</p>
+            <div style="background:#f7f7f7;border-radius:12px;padding:16px;margin:16px 0">
+              <p style="margin:4px 0;font-size:14px">Shipment Reference: <strong>${shipRef}</strong></p>
+              <p style="margin:4px 0;font-size:14px">Delivery Address: <strong>${deliveryAddress}</strong></p>
+              <p style="margin:4px 0;font-size:14px">Est. Delivery: <strong>${estDelivery.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</strong></p>
+            </div>
+            <p style="color:#6b7280;font-size:13px">Once you receive the delivery, use the OTP to confirm and release payment to the manufacturer.</p>
+          </div>`,
+      }).catch(() => {})
+    }
+
+    const { sendSuccess } = await import('../../shared/utils/response')
+    sendSuccess(res, { order, deliveryAddress, shipRef }, 'Order marked as shipped — client notified')
+  } catch (e) { next(e) }
+}

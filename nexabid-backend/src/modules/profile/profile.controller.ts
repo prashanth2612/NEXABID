@@ -18,7 +18,11 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const allowed = ['fullName', 'phone', 'companyName', 'gstNumber', 'businessName', 'category', 'bio', 'address', 'website', 'linkedin']
+    const allowed = [
+      'fullName', 'phone', 'companyName', 'gstNumber', 'businessName',
+      'category', 'bio', 'address', 'city', 'state', 'website', 'linkedin',
+      'bankAccountName', 'bankAccountNumber', 'bankIfsc', 'bankName',
+    ]
     const updates: Record<string, string> = {}
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key]
@@ -71,5 +75,17 @@ export const getProfileStats = async (req: AuthRequest, res: Response, next: Nex
       const acceptanceRate = totalBids > 0 ? Math.round((acceptedBids / totalBids) * 100) : 0
       sendSuccess(res, { totalBids, acceptedBids, pendingBids, acceptanceRate }, 'Stats fetched')
     }
+  } catch (e) { next(e) }
+}
+
+export const deleteAccount = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { User } = await import('../auth/auth.model')
+    await User.findByIdAndUpdate(req.user!.userId, {
+      isActive: false,
+      email: `deleted_${req.user!.userId}@nexabid.deleted`,
+      refreshToken: null,
+    })
+    sendSuccess(res, {}, 'Account deleted successfully')
   } catch (e) { next(e) }
 }

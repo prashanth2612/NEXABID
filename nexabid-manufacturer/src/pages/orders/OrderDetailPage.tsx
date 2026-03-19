@@ -3,9 +3,11 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Package, MapPin, Calendar, IndianRupee,
   CheckCircle2, Clock, Shield, Loader2, MessageSquare,
-  Truck, AlertCircle, User, ChevronRight, Sparkles,
+  Truck, AlertCircle, User, ChevronRight, Sparkles, Star,
+  Paperclip, FileText, Image,
 } from 'lucide-react'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
 
 interface Order {
@@ -27,6 +29,7 @@ interface Order {
   escrowStatus?: string
   specialNotes?: string
   tags?: string[]
+  attachments?: { name: string; type: string; data: string; size: number }[]
   clientId: { id: string; fullName: string; companyName?: string; email?: string } | null
 }
 
@@ -64,9 +67,20 @@ export default function ManufacturerOrderDetailPage() {
   const [bidLoading, setBidLoading] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiSuggestion, setAiSuggestion] = useState<{suggestedPrice:number;reasoning:string;confidenceScore:number;winProbability:number;marketAverage:number|null} | null>(null)
+  const [myRating, setMyRating] = useState<{ rating: number; review: string } | null>(null)
+  const [ratingForm, setRatingForm] = useState({ stars: 0, review: '' })
+  const [ratingLoading, setRatingLoading] = useState(false)
+  const [ratingError, setRatingError] = useState<string | null>(null)
+  const [ratingDone, setRatingDone] = useState(false)
+  const [matchScore, setMatchScore] = useState<{ score: number; strengths: string[]; tip: string } | null>(null)
+  const [matchLoading, setMatchLoading] = useState(false)
   const [bidForm, setBidForm] = useState({ proposedPrice: '', deliveryDays: '', message: '' })
   const [bidError, setBidError] = useState<string | null>(null)
   const [bidSuccess, setBidSuccess] = useState(false)
+  const [showShipForm, setShowShipForm] = useState(false)
+  const [shipForm, setShipForm] = useState({ trackingNumber: '', courierName: '', trackingUrl: '', estimatedDelivery: '' })
+  const [shipLoading, setShipLoading] = useState(false)
+  const [shipError, setShipError] = useState<string | null>(null)
 
   const load = async () => {
     if (!id) return
@@ -89,7 +103,32 @@ export default function ManufacturerOrderDetailPage() {
     }
   }
 
-  useEffect(() => { load() }, [id])
+  useEffect(() => {
+    load()
+    if (id) { api.get(`/ratings/my-rating/${id}`).then(r => { if (r.data.data.rating) setMyRating(r.data.data.rating) }).catch(() => {}) }
+  }, [id])
+
+  // Auto-fetch match score — must be before early returns to satisfy Rules of Hooks
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (order && !myBid && ['posted', 'bidding'].includes(order.status) && !matchScore && !matchLoading) {
+      fetchMatchScore()
+    }
+  }, [order?.id, myBid?.id])
+
+  const handleSubmitRating = async () => {
+    if (!ratingForm.stars) return setRatingError('Please select a star rating')
+    if (ratingForm.review.length < 10) return setRatingError('Review must be at least 10 characters')
+    setRatingLoading(true); setRatingError(null)
+    try {
+      await api.post('/ratings', { orderId: id, rating: ratingForm.stars, review: ratingForm.review })
+      setRatingDone(true)
+      setMyRating({ rating: ratingForm.stars, review: ratingForm.review })
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } }
+      setRatingError(err.response?.data?.message || 'Failed to submit rating')
+    } finally { setRatingLoading(false) }
+  }
 
   const handleSubmitBid = async () => {
     setBidError(null)
@@ -122,16 +161,53 @@ export default function ManufacturerOrderDetailPage() {
       const res = await api.get(`/bids/ai-suggest/${id}`)
       const s = res.data.data
       setAiSuggestion(s)
-      // Auto-fill price
       setBidForm(f => ({ ...f, proposedPrice: String(s.suggestedPrice) }))
     } catch (e) { console.error(e) }
     finally { setAiLoading(false) }
   }
 
+  const fetchMatchScore = async () => {
+    if (!order || matchScore) return
+    setMatchLoading(true)
+    try {
+      const { manufacturer: mfr } = useAuthStore.getState()
+      const mfrCategories = mfr?.categories?.join(', ') || 'General manufacturing'
+      const prompt = `You are a B2B manufacturing match scoring AI. Score how well this manufacturer matches this order.
+
+Manufacturer specialization: ${mfrCategories}
+Order: "${order.title}"
+Category: ${order.category}
+Quantity: ${order.quantity} ${order.unit}
+Budget: ${order.isFixedPrice ? `₹${order.fixedPrice?.toLocaleString('en-IN')} fixed` : `₹${order.budgetMin?.toLocaleString('en-IN')}–₹${order.budgetMax?.toLocaleString('en-IN')}`}
+Delivery: ${order.deliveryDays} days
+
+Return ONLY JSON (no markdown):
+{"score":82,"strengths":["Category match","Competitive budget"],"tip":"Highlight your quality certifications in your bid"}`
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 200,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      const text = data.content?.[0]?.text?.trim()
+      if (text) {
+        const parsed = JSON.parse(text.replace(/```json|```/g, '').trim())
+        setMatchScore(parsed)
+      }
+    } catch { /* silent */ }
+    finally { setMatchLoading(false) }
+  }
+
   const handleMarkDone = async () => {
     setActionLoading(true)
     try {
-      await api.post(`/orders/${id}/manufacturing-complete`)
+      // Single step: ship immediately, backend auto-generates ref + notifies client
+      await api.post(`/orders/${id}/ship`, {})
       await load()
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } }
@@ -140,6 +216,28 @@ export default function ManufacturerOrderDetailPage() {
       setActionLoading(false)
     }
   }
+
+  const handleShipOrder = async () => {
+    if (!shipForm.trackingNumber.trim() || !shipForm.courierName.trim()) {
+      setShipError('Tracking number and courier name are required'); return
+    }
+    setShipLoading(true); setShipError(null)
+    try {
+      await api.post(`/orders/${id}/ship`, shipForm)
+      setShowShipForm(false)
+      await load()
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } }
+      setShipError(err.response?.data?.message || 'Failed to mark as shipped')
+    } finally { setShipLoading(false) }
+  }
+
+  const cfg = STATUS_CONFIG[order?.status ?? ''] ?? { label: order?.status ?? '', color: '#6b7280', bg: '#f3f4f6', desc: '' }
+  const canMarkDone = order?.status === 'manufacturing' && myBid?.status === 'accepted'
+  const canShip = order?.status === 'shipped_pending' || (order?.status === 'manufacturing' && showShipForm)
+  void canShip
+  const canChat = ['confirmed', 'manufacturing', 'shipped', 'delivered', 'completed'].includes(order?.status ?? '') && myBid?.status === 'accepted'
+  const daysLeft = order ? Math.ceil((new Date(order.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -159,10 +257,6 @@ export default function ManufacturerOrderDetailPage() {
     </div>
   )
 
-  const cfg = STATUS_CONFIG[order.status] ?? { label: order.status, color: '#6b7280', bg: '#f3f4f6', desc: '' }
-  const canMarkDone = order.status === 'manufacturing' && myBid?.status === 'accepted'
-  const canChat = ['confirmed', 'manufacturing', 'shipped', 'delivered', 'completed'].includes(order.status) && myBid?.status === 'accepted'
-  const daysLeft = Math.ceil((new Date(order.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
 
   return (
     <div className="max-w-3xl mx-auto space-y-4 animate-fade-up pb-8">
@@ -203,6 +297,73 @@ export default function ManufacturerOrderDetailPage() {
 
         {order.description && (
           <p className="text-gray-600 text-sm leading-relaxed mb-5 pb-5 border-b border-gray-50">{order.description}</p>
+        )}
+
+        {/* AI Match Score */}
+        {(matchScore || matchLoading) && !myBid && ['posted', 'bidding'].includes(order.status) && (
+          <div className="mb-5 pb-5 border-b border-gray-50">
+            {matchLoading ? (
+              <div className="flex items-center gap-2 text-xs text-gray-400">
+                <Loader2 size={12} className="animate-spin text-purple-400" />
+                Calculating your match score...
+              </div>
+            ) : matchScore && (
+              <div className="bg-purple-50 rounded-xl border border-purple-100 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={14} className="text-purple-600" />
+                    <span className="text-sm font-semibold text-purple-900">Your Match Score</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-2 bg-purple-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-purple-600 rounded-full transition-all"
+                        style={{ width: `${matchScore.score}%` }} />
+                    </div>
+                    <span className={cn('text-sm font-bold',
+                      matchScore.score >= 80 ? 'text-green-600' :
+                      matchScore.score >= 60 ? 'text-orange-500' : 'text-red-500'
+                    )}>{matchScore.score}%</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {matchScore.strengths.map((s: string) => (
+                    <span key={s} className="px-2 py-0.5 bg-white rounded-full text-xs text-purple-700 border border-purple-200 font-medium">
+                      ✓ {s}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs text-purple-700 mt-2">
+                  <span className="font-semibold">Tip:</span> {matchScore.tip}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Attachments */}
+        {order.attachments && order.attachments.length > 0 && (
+          <div className="mb-5 pb-5 border-b border-gray-50">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2.5 flex items-center gap-1.5">
+              <Paperclip size={11} /> Attachments ({order.attachments.length})
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {order.attachments.map((file, idx) => {
+                const isImg = file.type?.startsWith('image/')
+                return (
+                  <a key={idx} href={`data:${file.type};base64,${file.data}`} download={file.name}
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors group"
+                  >
+                    {isImg
+                      ? <Image size={13} className="text-blue-500 flex-shrink-0" />
+                      : <FileText size={13} className="text-gray-400 flex-shrink-0" />
+                    }
+                    <span className="text-xs text-gray-600 group-hover:text-[#0A0A0A] transition-colors max-w-[140px] truncate">{file.name}</span>
+                    <span className="text-[10px] text-gray-400">{((file.size || 0) / 1024).toFixed(0)}KB</span>
+                  </a>
+                )
+              })}
+            </div>
+          </div>
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
@@ -404,39 +565,120 @@ export default function ManufacturerOrderDetailPage() {
         </div>
       )}
 
-      {/* Action: Mark Manufacturing Complete */}
-      {canMarkDone && (
+      {/* Action: Mark as Shipped — single button, no form needed */}
+      {canMarkDone && !showShipForm && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
               <Truck size={16} className="text-orange-500" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-[#0A0A0A]">Ready to Ship?</p>
+              <p className="text-sm font-semibold text-[#0A0A0A]">Manufacturing Complete?</p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                Mark as complete once you've finished manufacturing and handed off to logistics. The client will be notified to confirm delivery.
+                Clicking below will mark the order as shipped and notify the client automatically with their delivery address.
               </p>
             </div>
           </div>
           <button onClick={handleMarkDone} disabled={actionLoading}
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors">
             {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Truck size={15} />}
-            {actionLoading ? 'Updating...' : 'Mark Manufacturing Complete'}
+            {actionLoading ? 'Processing...' : 'Mark as Shipped — Notify Client'}
           </button>
         </div>
       )}
 
-      {/* Completed state */}
-      {order.status === 'completed' && (
-        <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
-          <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-            <CheckCircle2 size={22} className="text-green-600" />
+      {/* Shipped state — show tracking info */}
+      {order.status === 'shipped' && (order as any).trackingNumber && (
+        <div className="bg-white rounded-2xl border border-gray-100 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Truck size={16} className="text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-[#0A0A0A]">Shipment Dispatched</p>
+              <p className="text-xs text-gray-400 mt-0.5">Waiting for client to confirm delivery</p>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-green-800">Order Completed!</p>
-            <p className="text-sm text-green-600 mt-0.5">
-              Payment of {myBid ? fmt(myBid.proposedPrice) : 'funds'} has been released. Thank you!
+          <div className="space-y-2 bg-gray-50 rounded-xl p-4">
+            {[
+              { label: 'Courier',   value: (order as any).courierName },
+              { label: 'Tracking', value: (order as any).trackingNumber },
+            ].map(item => (
+              <div key={item.label} className="flex justify-between text-sm">
+                <span className="text-gray-400">{item.label}</span>
+                <span className="font-medium text-[#0A0A0A]">{item.value}</span>
+              </div>
+            ))}
+            {(order as any).trackingUrl && (
+              <a href={(order as any).trackingUrl} target="_blank" rel="noopener noreferrer"
+                className="block text-xs text-blue-500 hover:text-blue-700 mt-2">
+                Track shipment →
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Completed state + Rate client */}
+      {order.status === 'completed' && (
+        <div className="space-y-4">
+          <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
+            <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 size={22} className="text-green-600" />
+            </div>
+            <div>
+              <p className="font-semibold text-green-800">Order Completed!</p>
+              <p className="text-sm text-green-600 mt-0.5">
+                Payment of {myBid ? fmt(myBid.proposedPrice) : 'funds'} has been released. Thank you!
+              </p>
+            </div>
+          </div>
+
+          {/* Rate the client */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-6">
+            <h3 className="text-sm font-semibold text-[#0A0A0A] mb-1">
+              {myRating || ratingDone ? 'Your Rating' : 'Rate This Client'}
+            </h3>
+            <p className="text-xs text-gray-400 mb-4">
+              {myRating || ratingDone ? 'You have rated this client' : 'How was your experience working with this buyer?'}
             </p>
+            {(myRating || ratingDone) ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-1">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} size={20} className={(myRating?.rating || ratingForm.stars) >= s ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200'} />
+                  ))}
+                  <span className="ml-2 text-sm font-semibold text-[#0A0A0A]">{myRating?.rating || ratingForm.stars}/5</span>
+                </div>
+                <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3">{myRating?.review || ratingForm.review}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {ratingError && <p className="text-sm text-red-500">{ratingError}</p>}
+                <div className="flex items-center gap-2">
+                  {[1,2,3,4,5].map(s => (
+                    <button key={s} onClick={() => setRatingForm(f => ({ ...f, stars: s }))}>
+                      <Star size={28} className={ratingForm.stars >= s ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 hover:text-yellow-300 transition-colors'} />
+                    </button>
+                  ))}
+                  {ratingForm.stars > 0 && (
+                    <span className="ml-1 text-sm text-gray-500">
+                      {['','Poor','Fair','Good','Very Good','Excellent'][ratingForm.stars]}
+                    </span>
+                  )}
+                </div>
+                <textarea rows={3} placeholder="How was the client's communication, requirements clarity, payment speed..."
+                  value={ratingForm.review}
+                  onChange={e => setRatingForm(f => ({ ...f, review: e.target.value }))}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-black/10 placeholder-gray-400"
+                />
+                <button onClick={handleSubmitRating} disabled={ratingLoading}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors">
+                  {ratingLoading ? <Loader2 size={14} className="animate-spin" /> : <Star size={14} />}
+                  {ratingLoading ? 'Submitting...' : 'Submit Rating'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

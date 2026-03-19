@@ -1,20 +1,28 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CheckCircle2, Package, SlidersHorizontal, X, Loader2 } from 'lucide-react'
+import { CheckCircle2, Package, SlidersHorizontal, X, Loader2, Sparkles } from 'lucide-react'
 import SwipeStack from '@/components/swipe/SwipeStack'
 import { useCategoryStore, ALL_CATEGORIES, CATEGORY_META, type Category } from '@/store/categoryStore'
 import type { SwipeOrder } from '@/types/orders'
 import { cn } from '@/lib/utils'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
+
+interface RankedOrder extends SwipeOrder { matchScore: number; matchReason: string }
 
 export default function BrowseOrdersPage() {
   const navigate = useNavigate()
+  const { manufacturer } = useAuthStore()
   const { selected, toggle, confirm } = useCategoryStore()
   const [orders, setOrders] = useState<SwipeOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [acceptedOrders, setAcceptedOrders] = useState<SwipeOrder[]>([])
   const [justAccepted, setJustAccepted] = useState<SwipeOrder | null>(null)
   const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [browseTab, setBrowseTab] = useState<'swipe' | 'foryou'>('swipe')
+  const [recommended, setRecommended] = useState<RankedOrder[]>([])
+  const [recLoading, setRecLoading] = useState(false)
+  const [recGenerated, setRecGenerated] = useState(false)
 
   const loadOrders = async () => {
     setLoading(true)
@@ -38,12 +46,12 @@ export default function BrowseOrdersPage() {
         budgetMin: o.budgetMin,
         budgetMax: o.budgetMax,
         deliveryDate: o.deliveryDate,
-        deliveryDays: Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+        deliveryDays: Math.max(0, Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) - 3), // minus 3 days transit
         deliveryLocation: o.deliveryLocation,
         specialNotes: o.specialNotes,
-        isUrgent: o.isUrgent,
-        isBulk: o.isBulk,
-        isNew: (Date.now() - new Date(o.createdAt).getTime()) < 24 * 60 * 60 * 1000,
+        isNew: (Date.now() - new Date(o.createdAt).getTime()) < 48 * 60 * 60 * 1000,
+        isUrgent: Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7,
+        isBulk: o.quantity >= 500,
         postedAt: o.createdAt,
       }))
       setOrders(mapped)
@@ -55,6 +63,69 @@ export default function BrowseOrdersPage() {
   }
 
   useEffect(() => { loadOrders() }, [selected.join(',')])
+
+  useEffect(() => { loadOrders() }, [selected.join(',')])
+
+  const generateRecommendations = async () => {
+    if (orders.length === 0 || recGenerated) return
+    setRecLoading(true)
+    try {
+      const mfrCategories = manufacturer?.categories?.join(', ') || selected.join(', ') || 'General manufacturing'
+      const mfrName = manufacturer?.businessName || manufacturer?.fullName || 'Manufacturer'
+      const orderList = orders.slice(0, 12).map((o, i) =>
+        `${i + 1}. ID:${o.id} | "${o.title}" | Category:${o.category} | Budget:${o.isFixedPrice ? `₹${o.fixedPrice} fixed` : `₹${o.budgetMin}-₹${o.budgetMax}`} | Qty:${o.quantity} ${o.unit} | Delivery:${o.deliveryDays}d | Urgent:${o.isUrgent} | Bulk:${o.isBulk}`
+      ).join('\n')
+
+      const prompt = `You are a smart manufacturing order matching AI for NexaBid.
+
+Manufacturer: ${mfrName}
+Specialization: ${mfrCategories}
+
+Available orders:
+${orderList}
+
+Rank the TOP 5 orders best suited for this manufacturer. Return ONLY JSON array, no markdown:
+[{"id":"order_id","matchScore":85,"matchReason":"Short reason why this is a good match"}]
+matchScore is 0-100. Sort by matchScore descending.`
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 400,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      const text = data.content?.[0]?.text?.trim()
+      if (text) {
+        const ranked: { id: string; matchScore: number; matchReason: string }[] = JSON.parse(text.replace(/```json|```/g, '').trim())
+        const enriched: RankedOrder[] = ranked
+          .map(r => {
+            const order = orders.find(o => o.id === r.id)
+            if (!order) return null
+            return { ...order, matchScore: r.matchScore, matchReason: r.matchReason }
+          })
+          .filter(Boolean) as RankedOrder[]
+        setRecommended(enriched)
+        setRecGenerated(true)
+      }
+    } catch { /* silent fail */ }
+    finally { setRecLoading(false) }
+  }
+
+  // Keyboard shortcuts: ArrowRight = accept, ArrowLeft = reject
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (!orders.length) return
+      const top = orders[orders.length - 1]
+      if (e.key === 'ArrowRight') { e.preventDefault(); handleAccept(top) }
+      if (e.key === 'ArrowLeft')  { e.preventDefault(); handleReject(top) }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [orders])
 
   const handleAccept = (order: SwipeOrder) => {
     setAcceptedOrders((prev) => [order, ...prev])
@@ -87,18 +158,33 @@ export default function BrowseOrdersPage() {
             {selected.length === 0 ? 'All categories' : `${selected.length} categories selected`}
           </p>
         </div>
-        <button
-          onClick={() => setShowFilterPanel(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
-        >
-          <SlidersHorizontal size={15} />
-          Filter Categories
-          {selected.length > 0 && (
-            <span className="w-5 h-5 bg-[#0A0A0A] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
-              {selected.length}
-            </span>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Tab switcher */}
+          <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
+            <button onClick={() => setBrowseTab('swipe')}
+              className={cn('px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                browseTab === 'swipe' ? 'bg-[#0A0A0A] text-white' : 'text-gray-500 hover:text-gray-800'
+              )}>Swipe</button>
+            <button onClick={() => { setBrowseTab('foryou'); generateRecommendations() }}
+              className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
+                browseTab === 'foryou' ? 'bg-[#0A0A0A] text-white' : 'text-gray-500 hover:text-gray-800'
+              )}>
+              <Sparkles size={12} />For You
+            </button>
+          </div>
+          <button
+            onClick={() => setShowFilterPanel(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+          >
+            <SlidersHorizontal size={15} />
+            Filter Categories
+            {selected.length > 0 && (
+              <span className="w-5 h-5 bg-[#0A0A0A] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                {selected.length}
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Active filter chips */}
@@ -122,36 +208,98 @@ export default function BrowseOrdersPage() {
       )}
 
       <div className="flex gap-8 items-start">
-        {/* Swipe stack */}
+        {/* Swipe stack OR For You feed */}
         <div className="flex-1 flex flex-col items-center">
-          {loading ? (
-            <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-3">
-              <Loader2 size={24} className="animate-spin text-gray-400" />
-              <p className="text-sm text-gray-400">Loading orders...</p>
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center text-center p-8">
-              <div className="text-4xl mb-4">🔍</div>
-              <p className="text-base font-bold text-[#0A0A0A] mb-2">No orders available</p>
-              <p className="text-gray-400 text-sm mb-5">
-                {selected.length > 0
-                  ? 'No orders in selected categories. Try different filters.'
-                  : 'No orders posted yet. Check back soon.'}
-              </p>
-              {selected.length > 0 && (
-                <button
-                  onClick={() => useCategoryStore.getState().clearAll()}
-                  className="px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold"
-                >
-                  Show All Orders
-                </button>
+          {browseTab === 'swipe' ? (
+            loading ? (
+              <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-3">
+                <Loader2 size={24} className="animate-spin text-gray-400" />
+                <p className="text-sm text-gray-400">Loading orders...</p>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center text-center p-8">
+                <div className="text-4xl mb-4">🔍</div>
+                <p className="text-base font-bold text-[#0A0A0A] mb-2">No orders available</p>
+                <p className="text-gray-400 text-sm mb-5">
+                  {selected.length > 0
+                    ? 'No orders in selected categories. Try different filters.'
+                    : 'No orders posted yet. Check back soon.'}
+                </p>
+                {selected.length > 0 && (
+                  <button
+                    onClick={() => useCategoryStore.getState().clearAll()}
+                    className="px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold"
+                  >
+                    Show All Orders
+                  </button>
+                )}
+              </div>
+            ) : (
+              <SwipeStack orders={orders} onAccept={handleAccept} onReject={handleReject} />
+            )
+          ) : (
+            /* For You feed */
+            <div className="w-full max-w-xl space-y-3">
+              {recLoading ? (
+                <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-16 gap-3">
+                  <Loader2 size={22} className="animate-spin text-purple-400" />
+                  <p className="text-sm text-gray-400">AI is ranking orders for you...</p>
+                </div>
+              ) : recommended.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center py-16 text-center px-8">
+                  <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center mb-3">
+                    <Sparkles size={20} className="text-purple-500" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#0A0A0A] mb-1">No recommendations yet</p>
+                  <p className="text-xs text-gray-400 mb-4">Make sure orders are loaded, then click "For You" again</p>
+                  <button onClick={() => { setRecGenerated(false); generateRecommendations() }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
+                    Regenerate
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles size={14} className="text-purple-500" />
+                    <p className="text-sm font-semibold text-[#0A0A0A]">Top picks based on your specialization</p>
+                    <button onClick={() => { setRecGenerated(false); generateRecommendations() }}
+                      className="ml-auto text-xs text-purple-500 hover:text-purple-700 font-medium">Refresh</button>
+                  </div>
+                  {recommended.map(order => (
+                    <div key={order.id} className="bg-white rounded-2xl border border-gray-100 p-5 hover:border-gray-200 transition-colors">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#0A0A0A] truncate">{order.title}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{order.clientCompany || order.clientName} · {order.category}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 rounded-full">
+                            <Sparkles size={10} className="text-purple-500" />
+                            <span className="text-xs font-bold text-purple-600">{order.matchScore}% match</span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-xs text-purple-700 bg-purple-50 rounded-lg px-3 py-2 mb-3">{order.matchReason}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                          <span>📦 {order.quantity.toLocaleString()} {order.unit}</span>
+                          <span>📅 {order.deliveryDays}d delivery</span>
+                          <span className="font-semibold text-green-600">
+                            {order.isFixedPrice ? `₹${order.fixedPrice?.toLocaleString('en-IN')}` : `₹${order.budgetMax?.toLocaleString('en-IN')} max`}
+                          </span>
+                        </div>
+                        <button onClick={() => navigate(`/orders/${order.id}`)}
+                          className="px-3 py-1.5 bg-[#0A0A0A] text-white text-xs font-semibold rounded-lg hover:bg-[#1a1a1a] transition-colors">
+                          View Order
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
-          ) : (
-            <SwipeStack orders={orders} onAccept={handleAccept} onReject={handleReject} />
           )}
         </div>
-
         {/* Accepted panel */}
         <div className="w-[280px] flex-shrink-0">
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">

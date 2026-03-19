@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,6 +6,7 @@ import { z } from 'zod'
 import {
   ArrowLeft, Loader2, IndianRupee, Package,
   MapPin, Calendar, FileText, ChevronDown,
+  Paperclip, X, Upload, Image, Sparkles,
 } from 'lucide-react'
 import { ORDER_CATEGORIES, ORDER_UNITS } from '@/types/order'
 import api from '@/lib/api'
@@ -36,8 +37,65 @@ export default function CreateOrderPage() {
   const [loading, setLoading] = useState(false)
   const [isFixedPrice, setIsFixedPrice] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [attachments, setAttachments] = useState<{ name: string; type: string; data: string; size: number }[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [aiDescLoading, setAiDescLoading] = useState(false)
+  const [aiDescError, setAiDescError] = useState<string | null>(null)
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) { alert(`${file.name} is too large (max 5MB)`); return }
+      if (attachments.length >= 5) { alert('Maximum 5 attachments allowed'); return }
+      const reader = new FileReader()
+      reader.onload = () => {
+        const base64 = (reader.result as string).split(',')[1]
+        setAttachments(prev => [...prev, { name: file.name, type: file.type, data: base64, size: file.size }])
+      }
+      reader.readAsDataURL(file)
+    })
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const removeAttachment = (idx: number) => setAttachments(prev => prev.filter((_, i) => i !== idx))
+
+  const generateAIDescription = async () => {
+    const title = watch('title')
+    const category = watch('category')
+    const quantity = watch('quantity')
+    const unit = watch('unit')
+    if (!title || title.length < 5) { setAiDescError('Enter an order title first'); return }
+    setAiDescLoading(true); setAiDescError(null)
+    try {
+      const prompt = `You are a B2B manufacturing procurement expert. Generate a detailed, professional order description for a manufacturing order with these details:
+Title: ${title}
+Category: ${category || 'General manufacturing'}
+Quantity: ${quantity ? `${quantity} ${unit || 'units'}` : 'Not specified'}
+
+Write 3-4 sentences covering: material specifications, quality standards, finish/appearance requirements, and any relevant compliance or certification needs. Be specific and technical. Return ONLY the description text, no preamble.`
+
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 300,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      const data = await res.json()
+      const text = data.content?.[0]?.text
+      if (text) {
+        setValue('description', text, { shouldValidate: true })
+      } else {
+        setAiDescError('AI generation failed — try again')
+      }
+    } catch {
+      setAiDescError('Failed to generate description')
+    } finally { setAiDescLoading(false) }
+  }
+
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
 
@@ -79,6 +137,7 @@ export default function CreateOrderPage() {
         deliveryDate: data.deliveryDate,
         deliveryLocation: data.deliveryLocation,
         specialNotes: data.specialNotes,
+        attachments: attachments.length > 0 ? attachments : undefined,
       })
       navigate('/orders')
     } catch (err: unknown) {
@@ -124,9 +183,17 @@ export default function CreateOrderPage() {
 
           {/* Description */}
           <div>
-            <label className={labelClass}>Description <span className="text-gray-400 font-normal ml-1">— be specific</span></label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={labelClass} style={{marginBottom: 0}}>Description <span className="text-gray-400 font-normal ml-1">— be specific</span></label>
+              <button type="button" onClick={generateAIDescription} disabled={aiDescLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-medium hover:bg-purple-100 disabled:opacity-50 transition-colors">
+                {aiDescLoading ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                {aiDescLoading ? 'Generating...' : 'AI Generate'}
+              </button>
+            </div>
             <textarea {...register('description')} rows={4} className={cn(inputClass, 'resize-none')}
               placeholder="Describe material, size, colour, finish, any special requirements..." />
+            {aiDescError && <p className="text-xs text-red-500 mt-1">{aiDescError}</p>}
             {errors.description && <p className={errorClass}>{errors.description.message}</p>}
           </div>
 
@@ -214,6 +281,65 @@ export default function CreateOrderPage() {
             <label className={labelClass}><FileText size={13} className="inline mr-1.5 text-gray-400" />Special Notes <span className="text-gray-400 font-normal ml-1">— optional</span></label>
             <textarea {...register('specialNotes')} rows={2} className={cn(inputClass, 'resize-none')}
               placeholder="Sample requirements, certifications needed, etc." />
+          </div>
+
+          {/* Attachments */}
+          <div>
+            <label className={labelClass}>
+              <Paperclip size={13} className="inline mr-1.5 text-gray-400" />
+              Attachments <span className="text-gray-400 font-normal ml-1">— optional, up to 5 files (5MB each)</span>
+            </label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            {/* Drop zone */}
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-gray-200 rounded-xl p-5 text-center cursor-pointer hover:border-gray-300 hover:bg-gray-50/50 transition-all"
+            >
+              <Upload size={20} className="text-gray-300 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Click to upload spec sheets, reference images, or documents</p>
+              <p className="text-xs text-gray-400 mt-1">JPG, PNG, PDF, DOC, XLS — max 5MB each</p>
+            </div>
+            {/* Attached files list */}
+            {attachments.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {attachments.map((file, idx) => {
+                  const isImg = file.type.startsWith('image/')
+                  return (
+                    <div key={idx} className="flex items-center gap-3 px-3 py-2.5 bg-gray-50 rounded-xl border border-gray-100">
+                      <div className="w-8 h-8 bg-white rounded-lg border border-gray-200 flex items-center justify-center flex-shrink-0">
+                        {isImg
+                          ? <Image size={14} className="text-blue-500" />
+                          : <FileText size={14} className="text-gray-400" />
+                        }
+                      </div>
+                      {isImg && (
+                        <img
+                          src={`data:${file.type};base64,${file.data}`}
+                          alt={file.name}
+                          className="w-10 h-10 rounded-lg object-cover border border-gray-200 flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0A0A0A] truncate">{file.name}</p>
+                        <p className="text-xs text-gray-400">{(file.size / 1024).toFixed(0)} KB</p>
+                      </div>
+                      <button type="button" onClick={() => removeAttachment(idx)}
+                        className="w-7 h-7 rounded-lg hover:bg-red-50 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
           </div>
 
           {/* Submit error */}

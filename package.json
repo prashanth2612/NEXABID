@@ -6,14 +6,17 @@
     "nexabid-client",
     "nexabid-manufacturer",
     "nexabid-admin",
-    "nexabid-backend"
+    "nexabid-backend",
+    "nexabid-landing"
   ],
   "scripts": {
+    "dev:landing": "npm run dev --workspace=nexabid-landing",
     "dev:client": "npm run dev --workspace=nexabid-client",
     "dev:manufacturer": "npm run dev --workspace=nexabid-manufacturer",
     "dev:admin": "npm run dev --workspace=nexabid-admin",
     "dev:backend": "npm run dev --workspace=nexabid-backend",
     "dev:all": "npx concurrently \"npm run dev:client\" \"npm run dev:manufacturer\"",
+    "build:landing": "npm run build --workspace=nexabid-landing",
     "build:client": "npm run build --workspace=nexabid-client",
     "build:manufacturer": "npm run build --workspace=nexabid-manufacturer",
     "build:admin": "npm run build --workspace=nexabid-admin",

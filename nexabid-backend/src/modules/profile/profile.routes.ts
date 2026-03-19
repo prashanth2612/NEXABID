@@ -8,16 +8,21 @@ const router = Router()
 router.use(authenticate)
 
 const updateProfileSchema = z.object({
-  fullName:     z.string().min(2).trim().optional(),
-  phone:        z.string().min(7).trim().optional(),
-  companyName:  z.string().trim().optional(),
-  gstNumber:    z.string().trim().optional(),
-  businessName: z.string().trim().optional(),
-  category:     z.string().trim().optional(),
-  bio:          z.string().max(500).trim().optional(),
-  address:      z.string().trim().optional(),
-  website:      z.string().trim().optional(),
-  linkedin:     z.string().trim().optional(),
+  fullName:          z.string().min(2).trim().optional(),
+  phone:             z.string().min(7).trim().optional(),
+  companyName:       z.string().trim().optional(),
+  gstNumber:         z.string().trim().optional(),
+  businessName:      z.string().trim().optional(),
+  category:          z.string().trim().optional(),
+  bio:               z.string().max(500).trim().optional(),
+  address:           z.string().trim().optional(),
+  website:           z.string().trim().optional(),
+  linkedin:          z.string().trim().optional(),
+  // Bank / payout details
+  bankAccountName:   z.string().trim().optional(),
+  bankAccountNumber: z.string().trim().optional(),
+  bankIfsc:          z.string().trim().optional(),
+  bankName:          z.string().trim().optional(),
 })
 
 const changePasswordSchema = z.object({
@@ -31,3 +36,6 @@ router.post('/change-password', validate(changePasswordSchema),     profileContr
 router.get('/stats',                                                profileController.getProfileStats)
 
 export default router
+
+// Account deletion (soft-delete — marks account inactive)
+router.delete('/', profileController.deleteAccount)

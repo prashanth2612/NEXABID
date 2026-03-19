@@ -4,7 +4,7 @@ import type { AuthState, User } from '@/types/auth'
 
 interface AuthStore extends AuthState {
   login: (user: User, token: string) => void
-  setUser: (user: User) => void
+  setUser: (user: User, token?: string) => void
   logout: () => void
   setLoading: (loading: boolean) => void
   setError: (error: string | null) => void
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthStore>()(
 
       setLoading: (isLoading) => set({ isLoading }),
 
-      setUser: (user) => set({ user }),
+      setUser: (user, token) => set((s) => ({ user, token: token ?? s.token })),
 
       setError: (error) => set({ error }),
     }),

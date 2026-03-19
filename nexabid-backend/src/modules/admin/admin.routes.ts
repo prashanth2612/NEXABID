@@ -55,6 +55,39 @@ router.get('/users', authenticate, authorizeRoles('admin'), async (_req: AuthReq
   } catch (e) { next(e) }
 })
 
+// ── GET /admin/users/:id — full user detail with history ──────────
+router.get('/users/:id', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = await User.findById(req.params.id).select('-password -refreshToken')
+    if (!user) { res.status(404).json({ success: false, message: 'User not found' }); return }
+
+    // Fetch their orders and bids in parallel
+    const [orders, bids, payments] = await Promise.all([
+      Order.find(
+        user.role === 'client'
+          ? { clientId: user._id }
+          : { acceptedManufacturerId: user._id }
+      ).sort({ createdAt: -1 }).limit(10).select('title orderNumber status createdAt escrowAmount'),
+      user.role === 'manufacturer'
+        ? Bid.find({ manufacturerId: user._id }).sort({ createdAt: -1 }).limit(10)
+            .populate('orderId', 'title orderNumber')
+            .select('proposedPrice status createdAt orderId')
+        : Promise.resolve([]),
+      Payment.find(
+        user.role === 'client' ? { clientId: user._id } : { manufacturerId: user._id }
+      ).sort({ createdAt: -1 }).limit(10).select('amount status escrowStatus createdAt'),
+    ])
+
+    const stats = {
+      totalOrders: orders.length,
+      totalBids: bids.length,
+      totalPayments: payments.reduce((s: number, p: any) => s + (p.amount || 0), 0),
+    }
+
+    sendSuccess(res, { user, orders, bids, payments, stats })
+  } catch (e) { next(e) }
+})
+
 // ── PATCH /admin/users/:id/toggle-active ─────────────────────────
 router.patch('/users/:id/toggle-active', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -97,6 +130,48 @@ router.get('/payments', authenticate, authorizeRoles('admin'), async (_req: Auth
       .populate('clientId', 'fullName')
       .populate('manufacturerId', 'fullName')
     sendSuccess(res, { payments })
+  } catch (e) { next(e) }
+})
+
+// ── GET /admin/orders/:id — single order detail ──────────────────
+router.get('/orders/:id', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const order = await Order.findById(req.params.id)
+      .populate('clientId', 'fullName email companyName phone')
+      .populate('acceptedManufacturerId', 'fullName email businessName phone')
+      .populate('acceptedBidId')
+    if (!order) { res.status(404).json({ success: false, message: 'Order not found' }); return }
+    sendSuccess(res, { order })
+  } catch (e) { next(e) }
+})
+
+// ── PATCH /admin/orders/:id/status — override order status ────────
+router.patch('/orders/:id/status', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const validStatuses = ['posted', 'bidding', 'confirmed', 'manufacturing', 'shipped', 'delivered', 'completed', 'cancelled']
+    const { status, note } = req.body
+    if (!validStatuses.includes(status)) {
+      res.status(400).json({ success: false, message: 'Invalid status' }); return
+    }
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status, $push: { adminNotes: { note, status, changedAt: new Date(), changedBy: req.user?.userId } } },
+      { new: true }
+    ).populate('clientId', 'fullName email').populate('acceptedManufacturerId', 'fullName email')
+    if (!order) { res.status(404).json({ success: false, message: 'Order not found' }); return }
+    sendSuccess(res, { order }, 'Order status updated')
+  } catch (e) { next(e) }
+})
+
+// ── GET /admin/bids/:id — single bid detail ───────────────────────
+router.get('/bids/:id', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { Bid } = await import('../bids/bid.model')
+    const bid = await Bid.findById(req.params.id)
+      .populate('manufacturerId', 'fullName email businessName')
+      .populate('orderId', 'title orderNumber status')
+    if (!bid) { res.status(404).json({ success: false, message: 'Bid not found' }); return }
+    sendSuccess(res, { bid })
   } catch (e) { next(e) }
 })
 

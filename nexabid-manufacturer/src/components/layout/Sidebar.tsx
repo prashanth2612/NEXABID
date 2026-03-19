@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Layers, Package,
-  MessageSquare, CreditCard, User, LogOut, ChevronRight,
+  MessageSquare, CreditCard, User, LogOut, ChevronRight, Settings,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -27,6 +27,7 @@ const navItems = [
     group: 'Account',
     items: [
       { label: 'Profile',      icon: User,             path: '/profile' },
+      { label: 'Settings',     icon: Settings,         path: '/settings' },
     ],
   },
 ]
