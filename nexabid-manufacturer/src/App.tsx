@@ -12,8 +12,11 @@ import ProfilePage from '@/pages/profile/ProfilePage'
 import ChatPage from '@/pages/chat/ChatPage'
 import ProtectedRoute from '@/components/ui/ProtectedRoute'
 
+<<<<<<< HEAD
 import EarningsPage from '@/pages/earnings/EarningsPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 const Placeholder = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center">
@@ -41,8 +44,12 @@ export default function App() {
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/chat/:orderId" element={<ChatPage />} />
+<<<<<<< HEAD
             <Route path="/earnings" element={<EarningsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+=======
+            <Route path="/earnings" element={<Placeholder title="Earnings" />} />
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

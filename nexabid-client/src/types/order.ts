@@ -40,11 +40,14 @@ export interface Order {
   status: OrderStatus
   clientId: string
   escrowStatus?: 'pending' | 'escrowed' | 'released' | 'refunded'
+<<<<<<< HEAD
   trackingNumber?: string
   trackingUrl?: string
   courierName?: string
   shippedAt?: string
   estimatedDelivery?: string
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   escrowAmount?: number
   totalBids: number
   acceptedBidId?: string

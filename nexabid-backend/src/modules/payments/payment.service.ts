@@ -157,6 +157,7 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
     throw createError(`Invalid OTP. ${5 - payment.otpAttempts} attempts remaining.`, 400)
   }
 
+<<<<<<< HEAD
   // OTP correct — release escrow, calculate 2.5% platform commission
   const PLATFORM_FEE_RATE = 0.025
   const platformFee = Math.round(payment.amount * PLATFORM_FEE_RATE)
@@ -165,6 +166,10 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
   payment.status = 'released'
   payment.platformFee = platformFee
   payment.manufacturerPayout = manufacturerPayout
+=======
+  // OTP correct — release escrow
+  payment.status = 'released'
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   payment.otpVerifiedAt = new Date()
   payment.releasedAt = new Date()
   await payment.save()
@@ -186,6 +191,7 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto">
             <h2 style="color:#0A0A0A">Payment Released!</h2>
+<<<<<<< HEAD
             <p>Great news! The client has confirmed delivery and your payment has been released from escrow.</p>
             <div style="background:#f7f7f7;border-radius:12px;padding:16px;margin:16px 0">
               <p style="margin:0 0 8px;font-size:13px;color:#6b7280">Payment Breakdown</p>
@@ -193,6 +199,9 @@ export const verifyOtpAndRelease = async (paymentId: string, otp: string, client
               <p style="margin:4px 0;font-size:14px;color:#dc2626">Platform Fee (2.5%): <strong>−₹${platformFee.toLocaleString('en-IN')}</strong></p>
               <p style="margin:4px 0;font-size:16px;color:#059669;font-weight:bold">Your Payout: ₹${manufacturerPayout.toLocaleString('en-IN')}</p>
             </div>
+=======
+            <p>Great news! The client has confirmed delivery and your payment of <strong>₹${payment.amount.toLocaleString('en-IN')}</strong> has been released from escrow.</p>
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
             <p>The funds will be transferred to your registered bank account within 2-3 business days as per Razorpay's settlement schedule.</p>
             <p style="color:#6b7280;font-size:13px">Thank you for completing the order successfully.</p>
           </div>
@@ -256,6 +265,7 @@ export const getMyPayments = async (clientId: string) => {
     .sort({ createdAt: -1 })
   return payments
 }
+<<<<<<< HEAD
 
 // ─── 8. Raise Dispute ─────────────────────────────────────────────
 export const raiseDispute = async (paymentId: string, clientId: string, reason: string) => {
@@ -362,3 +372,5 @@ export const simulatePayment = async (orderId: string, clientId: string) => {
 
   return { payment, amount, simulated: true }
 }
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c

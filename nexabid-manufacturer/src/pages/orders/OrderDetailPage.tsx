@@ -3,11 +3,17 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Package, MapPin, Calendar, IndianRupee,
   CheckCircle2, Clock, Shield, Loader2, MessageSquare,
+<<<<<<< HEAD
   Truck, AlertCircle, User, ChevronRight, Sparkles, Star,
   Paperclip, FileText, Image,
 } from 'lucide-react'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+=======
+  Truck, AlertCircle, User, ChevronRight, Sparkles,
+} from 'lucide-react'
+import api from '@/lib/api'
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 import { cn } from '@/lib/utils'
 
 interface Order {
@@ -29,7 +35,10 @@ interface Order {
   escrowStatus?: string
   specialNotes?: string
   tags?: string[]
+<<<<<<< HEAD
   attachments?: { name: string; type: string; data: string; size: number }[]
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   clientId: { id: string; fullName: string; companyName?: string; email?: string } | null
 }
 
@@ -67,6 +76,7 @@ export default function ManufacturerOrderDetailPage() {
   const [bidLoading, setBidLoading] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
   const [aiSuggestion, setAiSuggestion] = useState<{suggestedPrice:number;reasoning:string;confidenceScore:number;winProbability:number;marketAverage:number|null} | null>(null)
+<<<<<<< HEAD
   const [myRating, setMyRating] = useState<{ rating: number; review: string } | null>(null)
   const [ratingForm, setRatingForm] = useState({ stars: 0, review: '' })
   const [ratingLoading, setRatingLoading] = useState(false)
@@ -81,6 +91,11 @@ export default function ManufacturerOrderDetailPage() {
   const [shipForm, setShipForm] = useState({ trackingNumber: '', courierName: '', trackingUrl: '', estimatedDelivery: '' })
   const [shipLoading, setShipLoading] = useState(false)
   const [shipError, setShipError] = useState<string | null>(null)
+=======
+  const [bidForm, setBidForm] = useState({ proposedPrice: '', deliveryDays: '', message: '' })
+  const [bidError, setBidError] = useState<string | null>(null)
+  const [bidSuccess, setBidSuccess] = useState(false)
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   const load = async () => {
     if (!id) return
@@ -103,6 +118,7 @@ export default function ManufacturerOrderDetailPage() {
     }
   }
 
+<<<<<<< HEAD
   useEffect(() => {
     load()
     if (id) { api.get(`/ratings/my-rating/${id}`).then(r => { if (r.data.data.rating) setMyRating(r.data.data.rating) }).catch(() => {}) }
@@ -129,6 +145,9 @@ export default function ManufacturerOrderDetailPage() {
       setRatingError(err.response?.data?.message || 'Failed to submit rating')
     } finally { setRatingLoading(false) }
   }
+=======
+  useEffect(() => { load() }, [id])
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   const handleSubmitBid = async () => {
     setBidError(null)
@@ -161,11 +180,16 @@ export default function ManufacturerOrderDetailPage() {
       const res = await api.get(`/bids/ai-suggest/${id}`)
       const s = res.data.data
       setAiSuggestion(s)
+<<<<<<< HEAD
+=======
+      // Auto-fill price
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
       setBidForm(f => ({ ...f, proposedPrice: String(s.suggestedPrice) }))
     } catch (e) { console.error(e) }
     finally { setAiLoading(false) }
   }
 
+<<<<<<< HEAD
   const fetchMatchScore = async () => {
     if (!order || matchScore) return
     setMatchLoading(true)
@@ -208,6 +232,12 @@ Return ONLY JSON (no markdown):
     try {
       // Single step: ship immediately, backend auto-generates ref + notifies client
       await api.post(`/orders/${id}/ship`, {})
+=======
+  const handleMarkDone = async () => {
+    setActionLoading(true)
+    try {
+      await api.post(`/orders/${id}/manufacturing-complete`)
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
       await load()
     } catch (e: unknown) {
       const err = e as { response?: { data?: { message?: string } } }
@@ -217,6 +247,7 @@ Return ONLY JSON (no markdown):
     }
   }
 
+<<<<<<< HEAD
   const handleShipOrder = async () => {
     if (!shipForm.trackingNumber.trim() || !shipForm.courierName.trim()) {
       setShipError('Tracking number and courier name are required'); return
@@ -239,6 +270,8 @@ Return ONLY JSON (no markdown):
   const canChat = ['confirmed', 'manufacturing', 'shipped', 'delivered', 'completed'].includes(order?.status ?? '') && myBid?.status === 'accepted'
   const daysLeft = order ? Math.ceil((new Date(order.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   if (loading) return (
     <div className="flex items-center justify-center h-64">
       <Loader2 size={24} className="animate-spin text-gray-400" />
@@ -257,6 +290,13 @@ Return ONLY JSON (no markdown):
     </div>
   )
 
+<<<<<<< HEAD
+=======
+  const cfg = STATUS_CONFIG[order.status] ?? { label: order.status, color: '#6b7280', bg: '#f3f4f6', desc: '' }
+  const canMarkDone = order.status === 'manufacturing' && myBid?.status === 'accepted'
+  const canChat = ['confirmed', 'manufacturing', 'shipped', 'delivered', 'completed'].includes(order.status) && myBid?.status === 'accepted'
+  const daysLeft = Math.ceil((new Date(order.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   return (
     <div className="max-w-3xl mx-auto space-y-4 animate-fade-up pb-8">
@@ -299,6 +339,7 @@ Return ONLY JSON (no markdown):
           <p className="text-gray-600 text-sm leading-relaxed mb-5 pb-5 border-b border-gray-50">{order.description}</p>
         )}
 
+<<<<<<< HEAD
         {/* AI Match Score */}
         {(matchScore || matchLoading) && !myBid && ['posted', 'bidding'].includes(order.status) && (
           <div className="mb-5 pb-5 border-b border-gray-50">
@@ -366,6 +407,8 @@ Return ONLY JSON (no markdown):
           </div>
         )}
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
           {[
             { icon: IndianRupee, label: 'Budget',      value: order.isFixedPrice ? fmt(order.fixedPrice!) : `${fmt(order.budgetMin!)} – ${fmt(order.budgetMax!)}` },
@@ -565,28 +608,44 @@ Return ONLY JSON (no markdown):
         </div>
       )}
 
+<<<<<<< HEAD
       {/* Action: Mark as Shipped — single button, no form needed */}
       {canMarkDone && !showShipForm && (
+=======
+      {/* Action: Mark Manufacturing Complete */}
+      {canMarkDone && (
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
           <div className="flex items-start gap-3 mb-4">
             <div className="w-9 h-9 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
               <Truck size={16} className="text-orange-500" />
             </div>
             <div>
+<<<<<<< HEAD
               <p className="text-sm font-semibold text-[#0A0A0A]">Manufacturing Complete?</p>
               <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
                 Clicking below will mark the order as shipped and notify the client automatically with their delivery address.
+=======
+              <p className="text-sm font-semibold text-[#0A0A0A]">Ready to Ship?</p>
+              <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                Mark as complete once you've finished manufacturing and handed off to logistics. The client will be notified to confirm delivery.
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
               </p>
             </div>
           </div>
           <button onClick={handleMarkDone} disabled={actionLoading}
             className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1a1a] disabled:opacity-50 transition-colors">
             {actionLoading ? <Loader2 size={15} className="animate-spin" /> : <Truck size={15} />}
+<<<<<<< HEAD
             {actionLoading ? 'Processing...' : 'Mark as Shipped — Notify Client'}
+=======
+            {actionLoading ? 'Updating...' : 'Mark Manufacturing Complete'}
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
           </button>
         </div>
       )}
 
+<<<<<<< HEAD
       {/* Shipped state — show tracking info */}
       {order.status === 'shipped' && (order as any).trackingNumber && (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">
@@ -679,6 +738,19 @@ Return ONLY JSON (no markdown):
                 </button>
               </div>
             )}
+=======
+      {/* Completed state */}
+      {order.status === 'completed' && (
+        <div className="bg-green-50 border border-green-100 rounded-2xl p-6 flex items-center gap-4">
+          <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+            <CheckCircle2 size={22} className="text-green-600" />
+          </div>
+          <div>
+            <p className="font-semibold text-green-800">Order Completed!</p>
+            <p className="text-sm text-green-600 mt-0.5">
+              Payment of {myBid ? fmt(myBid.proposedPrice) : 'funds'} has been released. Thank you!
+            </p>
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
           </div>
         </div>
       )}

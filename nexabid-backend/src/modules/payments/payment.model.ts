@@ -20,8 +20,11 @@ export interface IPayment extends Document {
   otpAttempts: number
   // Release / refund
   releasedAt?: Date
+<<<<<<< HEAD
   platformFee?: number
   manufacturerPayout?: number
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   refundedAt?: Date
   refundReason?: string
   // Dispute
@@ -53,8 +56,11 @@ const paymentSchema = new Schema<IPayment>(
     otpVerifiedAt:      { type: Date },
     otpAttempts:        { type: Number, default: 0 },
     releasedAt:         { type: Date },
+<<<<<<< HEAD
     platformFee:        { type: Number },
     manufacturerPayout: { type: Number },
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
     refundedAt:         { type: Date },
     refundReason:       { type: String },
     disputedAt:         { type: Date },
@@ -78,8 +84,11 @@ const paymentSchema = new Schema<IPayment>(
 
 paymentSchema.index({ orderId: 1 })
 paymentSchema.index({ clientId: 1, status: 1 })
+<<<<<<< HEAD
 paymentSchema.index({ manufacturerId: 1, escrowStatus: 1 })
 paymentSchema.index({ escrowStatus: 1 })
 paymentSchema.index({ razorpayOrderId: 1 }, { sparse: true })
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
 export const Payment = mongoose.model<IPayment>('Payment', paymentSchema)

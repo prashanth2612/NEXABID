@@ -64,10 +64,13 @@ router.post('/:id/manufacturing-complete',
   orderController.markManufacturingComplete
 )
 
+<<<<<<< HEAD
 // Manufacturer marks order as shipped with tracking details
 router.post('/:id/ship',
   authorizeRoles('manufacturer'),
   orderController.shipOrder
 )
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 export default router

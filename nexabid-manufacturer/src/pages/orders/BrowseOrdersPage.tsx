@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+<<<<<<< HEAD
 import { CheckCircle2, Package, SlidersHorizontal, X, Loader2, Sparkles } from 'lucide-react'
+=======
+import { CheckCircle2, Package, SlidersHorizontal, X, Loader2 } from 'lucide-react'
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 import SwipeStack from '@/components/swipe/SwipeStack'
 import { useCategoryStore, ALL_CATEGORIES, CATEGORY_META, type Category } from '@/store/categoryStore'
 import type { SwipeOrder } from '@/types/orders'
 import { cn } from '@/lib/utils'
 import api from '@/lib/api'
+<<<<<<< HEAD
 import { useAuthStore } from '@/store/authStore'
 
 interface RankedOrder extends SwipeOrder { matchScore: number; matchReason: string }
@@ -13,16 +18,24 @@ interface RankedOrder extends SwipeOrder { matchScore: number; matchReason: stri
 export default function BrowseOrdersPage() {
   const navigate = useNavigate()
   const { manufacturer } = useAuthStore()
+=======
+
+export default function BrowseOrdersPage() {
+  const navigate = useNavigate()
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   const { selected, toggle, confirm } = useCategoryStore()
   const [orders, setOrders] = useState<SwipeOrder[]>([])
   const [loading, setLoading] = useState(true)
   const [acceptedOrders, setAcceptedOrders] = useState<SwipeOrder[]>([])
   const [justAccepted, setJustAccepted] = useState<SwipeOrder | null>(null)
   const [showFilterPanel, setShowFilterPanel] = useState(false)
+<<<<<<< HEAD
   const [browseTab, setBrowseTab] = useState<'swipe' | 'foryou'>('swipe')
   const [recommended, setRecommended] = useState<RankedOrder[]>([])
   const [recLoading, setRecLoading] = useState(false)
   const [recGenerated, setRecGenerated] = useState(false)
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   const loadOrders = async () => {
     setLoading(true)
@@ -46,12 +59,21 @@ export default function BrowseOrdersPage() {
         budgetMin: o.budgetMin,
         budgetMax: o.budgetMax,
         deliveryDate: o.deliveryDate,
+<<<<<<< HEAD
         deliveryDays: Math.max(0, Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) - 3), // minus 3 days transit
         deliveryLocation: o.deliveryLocation,
         specialNotes: o.specialNotes,
         isNew: (Date.now() - new Date(o.createdAt).getTime()) < 48 * 60 * 60 * 1000,
         isUrgent: Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) <= 7,
         isBulk: o.quantity >= 500,
+=======
+        deliveryDays: Math.ceil((new Date(o.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
+        deliveryLocation: o.deliveryLocation,
+        specialNotes: o.specialNotes,
+        isUrgent: o.isUrgent,
+        isBulk: o.isBulk,
+        isNew: (Date.now() - new Date(o.createdAt).getTime()) < 24 * 60 * 60 * 1000,
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         postedAt: o.createdAt,
       }))
       setOrders(mapped)
@@ -64,6 +86,7 @@ export default function BrowseOrdersPage() {
 
   useEffect(() => { loadOrders() }, [selected.join(',')])
 
+<<<<<<< HEAD
   useEffect(() => { loadOrders() }, [selected.join(',')])
 
   const generateRecommendations = async () => {
@@ -127,6 +150,8 @@ matchScore is 0-100. Sort by matchScore descending.`
     return () => window.removeEventListener('keydown', handleKey)
   }, [orders])
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   const handleAccept = (order: SwipeOrder) => {
     setAcceptedOrders((prev) => [order, ...prev])
     setJustAccepted(order)
@@ -158,6 +183,7 @@ matchScore is 0-100. Sort by matchScore descending.`
             {selected.length === 0 ? 'All categories' : `${selected.length} categories selected`}
           </p>
         </div>
+<<<<<<< HEAD
         <div className="flex items-center gap-2">
           {/* Tab switcher */}
           <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
@@ -185,6 +211,20 @@ matchScore is 0-100. Sort by matchScore descending.`
             )}
           </button>
         </div>
+=======
+        <button
+          onClick={() => setShowFilterPanel(true)}
+          className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+        >
+          <SlidersHorizontal size={15} />
+          Filter Categories
+          {selected.length > 0 && (
+            <span className="w-5 h-5 bg-[#0A0A0A] text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+              {selected.length}
+            </span>
+          )}
+        </button>
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
       </div>
 
       {/* Active filter chips */}
@@ -208,6 +248,7 @@ matchScore is 0-100. Sort by matchScore descending.`
       )}
 
       <div className="flex gap-8 items-start">
+<<<<<<< HEAD
         {/* Swipe stack OR For You feed */}
         <div className="flex-1 flex flex-col items-center">
           {browseTab === 'swipe' ? (
@@ -300,6 +341,38 @@ matchScore is 0-100. Sort by matchScore descending.`
             </div>
           )}
         </div>
+=======
+        {/* Swipe stack */}
+        <div className="flex-1 flex flex-col items-center">
+          {loading ? (
+            <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-3">
+              <Loader2 size={24} className="animate-spin text-gray-400" />
+              <p className="text-sm text-gray-400">Loading orders...</p>
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="w-[360px] h-[400px] bg-white rounded-3xl border border-gray-100 flex flex-col items-center justify-center text-center p-8">
+              <div className="text-4xl mb-4">🔍</div>
+              <p className="text-base font-bold text-[#0A0A0A] mb-2">No orders available</p>
+              <p className="text-gray-400 text-sm mb-5">
+                {selected.length > 0
+                  ? 'No orders in selected categories. Try different filters.'
+                  : 'No orders posted yet. Check back soon.'}
+              </p>
+              {selected.length > 0 && (
+                <button
+                  onClick={() => useCategoryStore.getState().clearAll()}
+                  className="px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold"
+                >
+                  Show All Orders
+                </button>
+              )}
+            </div>
+          ) : (
+            <SwipeStack orders={orders} onAccept={handleAccept} onReject={handleReject} />
+          )}
+        </div>
+
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         {/* Accepted panel */}
         <div className="w-[280px] flex-shrink-0">
           <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">

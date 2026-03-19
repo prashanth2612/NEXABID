@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useState, useRef } from 'react'
+=======
+import { useState } from 'react'
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -6,7 +10,10 @@ import { z } from 'zod'
 import {
   ArrowLeft, Loader2, IndianRupee, Package,
   MapPin, Calendar, FileText, ChevronDown,
+<<<<<<< HEAD
   Paperclip, X, Upload, Image, Sparkles,
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 } from 'lucide-react'
 import { ORDER_CATEGORIES, ORDER_UNITS } from '@/types/order'
 import api from '@/lib/api'
@@ -37,6 +44,7 @@ export default function CreateOrderPage() {
   const [loading, setLoading] = useState(false)
   const [isFixedPrice, setIsFixedPrice] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+<<<<<<< HEAD
   const [attachments, setAttachments] = useState<{ name: string; type: string; data: string; size: number }[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [aiDescLoading, setAiDescLoading] = useState(false)
@@ -96,6 +104,10 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
   }
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+=======
+
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
     resolver: zodResolver(schema),
   })
 
@@ -137,7 +149,10 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
         deliveryDate: data.deliveryDate,
         deliveryLocation: data.deliveryLocation,
         specialNotes: data.specialNotes,
+<<<<<<< HEAD
         attachments: attachments.length > 0 ? attachments : undefined,
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
       })
       navigate('/orders')
     } catch (err: unknown) {
@@ -183,6 +198,7 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
 
           {/* Description */}
           <div>
+<<<<<<< HEAD
             <div className="flex items-center justify-between mb-1.5">
               <label className={labelClass} style={{marginBottom: 0}}>Description <span className="text-gray-400 font-normal ml-1">— be specific</span></label>
               <button type="button" onClick={generateAIDescription} disabled={aiDescLoading}
@@ -194,6 +210,11 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
             <textarea {...register('description')} rows={4} className={cn(inputClass, 'resize-none')}
               placeholder="Describe material, size, colour, finish, any special requirements..." />
             {aiDescError && <p className="text-xs text-red-500 mt-1">{aiDescError}</p>}
+=======
+            <label className={labelClass}>Description <span className="text-gray-400 font-normal ml-1">— be specific</span></label>
+            <textarea {...register('description')} rows={4} className={cn(inputClass, 'resize-none')}
+              placeholder="Describe material, size, colour, finish, any special requirements..." />
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
             {errors.description && <p className={errorClass}>{errors.description.message}</p>}
           </div>
 
@@ -283,6 +304,7 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
               placeholder="Sample requirements, certifications needed, etc." />
           </div>
 
+<<<<<<< HEAD
           {/* Attachments */}
           <div>
             <label className={labelClass}>
@@ -342,6 +364,8 @@ Write 3-4 sentences covering: material specifications, quality standards, finish
             )}
           </div>
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
           {/* Submit error */}
           {submitError && (
             <div className="px-4 py-3 bg-red-50 border border-red-100 rounded-xl">

@@ -47,6 +47,7 @@ export const notifyPaymentReleased = (manufacturerId: string, orderId: string, a
 
 export const notifyNewMessage = (userId: string, orderId: string, senderName: string) =>
   createNotification(userId, 'new_message', 'New Message', `${senderName} sent you a message`, `/chat/${orderId}`, { orderId })
+<<<<<<< HEAD
 
 // ─── Email helper (non-blocking) ─────────────────────────────────
 import { sendEmail } from './email'
@@ -122,3 +123,5 @@ export const emailOrderConfirmed = async (manufacturerId: string, orderTitle: st
     })
   } catch {}
 }
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c

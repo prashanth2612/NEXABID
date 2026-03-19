@@ -18,11 +18,15 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const updateProfile = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
+<<<<<<< HEAD
     const allowed = [
       'fullName', 'phone', 'companyName', 'gstNumber', 'businessName',
       'category', 'bio', 'address', 'city', 'state', 'website', 'linkedin',
       'bankAccountName', 'bankAccountNumber', 'bankIfsc', 'bankName',
     ]
+=======
+    const allowed = ['fullName', 'phone', 'companyName', 'gstNumber', 'businessName', 'category', 'bio', 'address', 'website', 'linkedin']
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
     const updates: Record<string, string> = {}
     for (const key of allowed) {
       if (req.body[key] !== undefined) updates[key] = req.body[key]
@@ -77,6 +81,7 @@ export const getProfileStats = async (req: AuthRequest, res: Response, next: Nex
     }
   } catch (e) { next(e) }
 }
+<<<<<<< HEAD
 
 export const deleteAccount = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -89,3 +94,5 @@ export const deleteAccount = async (req: AuthRequest, res: Response, next: NextF
     sendSuccess(res, {}, 'Account deleted successfully')
   } catch (e) { next(e) }
 }
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c

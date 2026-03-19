@@ -22,7 +22,10 @@ import paymentRoutes from './modules/payments/payment.routes'
 import chatRoutes from './modules/chat/chat.routes'
 import adminRoutes from './modules/admin/admin.routes'
 import ratingRoutes from './modules/ratings/rating.routes'
+<<<<<<< HEAD
 import payoutRoutes from './modules/payouts/payout.routes'
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
 const app = express()
 const httpServer = http.createServer(app)
@@ -56,6 +59,7 @@ app.use(cookieParser())
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 
 app.get('/health', (_req, res) => {
+<<<<<<< HEAD
   const mongoose = require('mongoose')
   const dbState = ['disconnected', 'connected', 'connecting', 'disconnecting']
   res.json({
@@ -65,6 +69,14 @@ app.get('/health', (_req, res) => {
     environment: env.NODE_ENV,
     timestamp: new Date().toISOString(),
     db: dbState[mongoose.connection.readyState] || 'unknown',
+=======
+  res.json({
+    success: true,
+    message: 'NexaBid API is running',
+    version: '1.0.0',
+    environment: env.NODE_ENV,
+    timestamp: new Date().toISOString(),
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   })
 })
 

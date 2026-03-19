@@ -3,7 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   ArrowLeft, Package, MapPin, Calendar, IndianRupee,
   Star, CheckCircle2, XCircle, Clock, Shield, Loader2, Sparkles, MessageSquare,
+<<<<<<< HEAD
   Paperclip, FileText, Image,
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 } from 'lucide-react'
 import { STATUS_CONFIG } from '@/types/order'
 import type { Order, Bid } from '@/types/order'
@@ -23,12 +26,16 @@ export default function OrderDetailPage() {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [showPayment, setShowPayment] = useState(false)
+<<<<<<< HEAD
   const [simLoading, setSimLoading] = useState(false)
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   const [myRating, setMyRating] = useState<{ rating: number; review: string } | null>(null)
   const [ratingForm, setRatingForm] = useState({ stars: 0, review: '' })
   const [ratingLoading, setRatingLoading] = useState(false)
   const [ratingError, setRatingError] = useState<string | null>(null)
   const [ratingDone, setRatingDone] = useState(false)
+<<<<<<< HEAD
   const [otpSent, setOtpSent] = useState(false)
   const [otpValue, setOtpValue] = useState('')
   const [otpLoading, setOtpLoading] = useState(false)
@@ -40,6 +47,8 @@ export default function OrderDetailPage() {
   const [disputeSuccess, setDisputeSuccess] = useState(false)
   const [negotiationAdvice, setNegotiationAdvice] = useState<{ verdict: string; reason: string; action: string } | null>(null)
   const [negotiationLoading, setNegotiationLoading] = useState(false)
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
 
   const load = async () => {
     try {
@@ -92,6 +101,7 @@ export default function OrderDetailPage() {
     }
   }
 
+<<<<<<< HEAD
   const handleSendOtp = async () => {
     setOtpLoading(true)
     setOtpError(null)
@@ -198,6 +208,8 @@ Respond ONLY with JSON (no markdown):
     finally { setNegotiationLoading(false) }
   }
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -263,6 +275,7 @@ Respond ONLY with JSON (no markdown):
 
         <p className="text-gray-600 text-sm leading-relaxed mb-5">{order.description}</p>
 
+<<<<<<< HEAD
         {/* Attachments */}
         {order.attachments && order.attachments.length > 0 && (
           <div className="mb-5">
@@ -292,6 +305,8 @@ Respond ONLY with JSON (no markdown):
           </div>
         )}
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             { icon: IndianRupee, label: 'Budget', value: order.isFixedPrice ? formatCurrency(order.fixedPrice!) : `${formatCurrency(order.budgetMin!)} – ${formatCurrency(order.budgetMax!)}` },
@@ -309,6 +324,7 @@ Respond ONLY with JSON (no markdown):
           ))}
         </div>
 
+<<<<<<< HEAD
         {/* Attachments */}
         {(order as any).attachments?.length > 0 && (
           <div className="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
@@ -351,6 +367,8 @@ Respond ONLY with JSON (no markdown):
           </div>
         )}
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         {order.escrowAmount && order.escrowStatus === 'escrowed' && (
           <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-green-50 rounded-xl border border-green-100">
             <Shield size={15} className="text-green-600" />
@@ -366,6 +384,7 @@ Respond ONLY with JSON (no markdown):
               <Shield size={15} className="text-orange-600" />
               <p className="text-sm text-orange-700 font-medium">Payment pending — secure funds in escrow to start manufacturing</p>
             </div>
+<<<<<<< HEAD
             <div className="flex items-center gap-2 ml-4">
               <button onClick={() => setShowPayment(true)}
                 className="flex items-center gap-1.5 px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-semibold hover:bg-[#1a1a1a] transition-colors whitespace-nowrap"
@@ -421,10 +440,18 @@ Respond ONLY with JSON (no markdown):
                 </a>
               )}
             </div>
+=======
+            <button onClick={() => setShowPayment(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-semibold hover:bg-[#1a1a1a] transition-colors whitespace-nowrap ml-4"
+            >
+              <Shield size={12} /> Pay to Escrow
+            </button>
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
           </div>
         )}
 
         {order.status === 'shipped' && order.escrowStatus === 'escrowed' && (
+<<<<<<< HEAD
           <div className="mt-4 bg-blue-50 rounded-xl border border-blue-100 p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Shield size={15} className="text-blue-600" />
@@ -474,10 +501,23 @@ Respond ONLY with JSON (no markdown):
           <div className="mt-4 bg-green-50 rounded-xl border border-green-100 p-4">
             <p className="text-sm font-semibold text-green-700">✅ Dispute Raised</p>
             <p className="text-xs text-green-600 mt-1">Admin has been notified and will review your case.</p>
+=======
+          <div className="mt-4 flex items-center justify-between px-4 py-3 bg-blue-50 rounded-xl border border-blue-100">
+            <div className="flex items-center gap-2">
+              <Shield size={15} className="text-blue-600" />
+              <p className="text-sm text-blue-700 font-medium">Order shipped — confirm delivery to release payment</p>
+            </div>
+            <button onClick={() => setShowPayment(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-semibold hover:bg-[#1a1a1a] transition-colors whitespace-nowrap ml-4"
+            >
+              <CheckCircle2 size={12} /> Confirm Delivery
+            </button>
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
           </div>
         )}
       </div>
 
+<<<<<<< HEAD
       {/* Dispute Modal */}
       {showDisputeModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -507,6 +547,8 @@ Respond ONLY with JSON (no markdown):
         </div>
       )}
 
+=======
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
       {/* Bids */}
       <div className="bg-white rounded-2xl border border-gray-100">
         <div className="px-6 py-4 border-b border-gray-50 flex items-center justify-between">
@@ -514,6 +556,7 @@ Respond ONLY with JSON (no markdown):
             Bids Received
             <span className="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">{bids.length}</span>
           </h3>
+<<<<<<< HEAD
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-xs text-gray-400">
               <Sparkles size={12} className="text-purple-500" />
@@ -558,6 +601,14 @@ Respond ONLY with JSON (no markdown):
           </div>
         )}
 
+=======
+          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+            <Sparkles size={12} className="text-purple-500" />
+            AI confidence scoring active
+          </div>
+        </div>
+
+>>>>>>> 99847c2f93ab33309d0edd61e4867843e09a039c
         {bids.length === 0 ? (
           <div className="py-16 flex flex-col items-center justify-center text-center">
             <Clock size={28} className="text-gray-300 mb-3" />
