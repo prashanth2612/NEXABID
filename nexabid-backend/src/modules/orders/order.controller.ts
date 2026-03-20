@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express'
 import * as orderService from './order.service'
-import { sendSuccess, sendError } from '../../shared/utils/response'
+import { sendSuccess } from '../../shared/utils/response'
 import type { AuthRequest } from '../../middleware/auth'
 
 export const createOrder = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {

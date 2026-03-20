@@ -1,5 +1,5 @@
 import { Router, Response, NextFunction } from 'express'
-import mongoose from 'mongoose'
+// mongoose imported lazily where needed
 import bcrypt from 'bcryptjs'
 import { authenticate, authorizeRoles, AuthRequest } from '../../middleware/auth'
 import { User } from '../auth/auth.model'
@@ -35,8 +35,8 @@ router.get('/stats', authenticate, authorizeRoles('admin'), async (_req: AuthReq
         .select('fullName email role createdAt'),
     ])
 
-    const totalRevenue = payments.filter(p => p.escrowStatus === 'released').reduce((s, p) => s + p.amount, 0)
-    const pendingPayments = payments.filter(p => p.escrowStatus === 'escrowed').reduce((s, p) => s + p.amount, 0)
+    const totalRevenue = payments.filter((p: any) => (p as any).escrowStatus === 'released').reduce((s, p) => s + p.amount, 0)
+    const pendingPayments = payments.filter((p: any) => (p as any).escrowStatus === 'escrowed').reduce((s, p) => s + p.amount, 0)
 
     sendSuccess(res, {
       totalUsers, totalClients, totalManufacturers,

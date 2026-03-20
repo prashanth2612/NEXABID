@@ -25,8 +25,8 @@ const messageSchema = new Schema<IMessage>(
     toJSON: {
       transform(_doc, ret) {
         ret.id = ret._id
-        delete ret._id
-        delete ret.__v
+        ret._id = undefined
+        ret.__v = undefined
         return ret
       },
     },

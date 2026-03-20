@@ -24,7 +24,7 @@ ratingSchema.index({ orderId: 1, fromUserId: 1 }, { unique: true })
 
 ratingSchema.set('toJSON', {
   transform(_doc, ret) {
-    ret.id = ret._id; delete ret._id; delete ret.__v
+    ret.id = ret._id; ret._id = undefined; ret.__v = undefined
     return ret
   }
 })

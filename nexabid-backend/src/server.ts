@@ -22,7 +22,6 @@ import paymentRoutes from './modules/payments/payment.routes'
 import chatRoutes from './modules/chat/chat.routes'
 import adminRoutes from './modules/admin/admin.routes'
 import ratingRoutes from './modules/ratings/rating.routes'
-import payoutRoutes from './modules/payouts/payout.routes'
 
 const app = express()
 const httpServer = http.createServer(app)
@@ -55,7 +54,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: any, res: any) => {
   const mongoose = require('mongoose')
   const dbState = ['disconnected', 'connected', 'connecting', 'disconnecting']
   res.json({

@@ -13,6 +13,7 @@ export interface IPayment extends Document {
   razorpaySignature?: string
   // Escrow state
   status: 'created' | 'paid' | 'escrowed' | 'released' | 'refunded' | 'failed' | 'disputed'
+  escrowStatus?: 'pending' | 'escrowed' | 'released' | 'refunded'
   // OTP for delivery verification
   deliveryOtp?: string
   otpSentAt?: Date
@@ -67,9 +68,9 @@ const paymentSchema = new Schema<IPayment>(
     toJSON: {
       transform(_doc, ret) {
         ret.id = ret._id
-        delete ret._id
-        delete ret.__v
-        delete ret.deliveryOtp
+        ret._id = undefined
+        ret.__v = undefined
+        ret.deliveryOtp = undefined
         return ret
       },
     },

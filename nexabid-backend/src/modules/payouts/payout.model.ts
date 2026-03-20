@@ -45,8 +45,8 @@ const payoutSchema = new Schema<IPayout>(
       virtuals: true,
       transform(_doc, ret) {
         ret.id = ret._id.toString()
-        delete ret._id
-        delete ret.__v
+        ret._id = undefined
+        ret.__v = undefined
       },
     },
   }

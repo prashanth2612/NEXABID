@@ -122,9 +122,9 @@ const orderSchema = new Schema<IOrder>(
     toJSON: {
       transform(_doc, ret) {
         ret.id = ret._id
-        delete ret._id
-        delete ret.__v
-        delete ret.rejectedBy
+        ret._id = undefined
+        ret.__v = undefined
+        ret.rejectedBy = undefined
         return ret
       },
     },
