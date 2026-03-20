@@ -375,7 +375,7 @@ function HeroCarousel({ navigate: _navigate }: { navigate: (p: Page) => void }) 
             </p>
             {/* Buttons need pointer-events back */}
             <div className="flex flex-wrap gap-3" style={{ pointerEvents: 'all' }}>
-              <a href="https://nexabid-nexabid-client.vercel.app" target="_blank" rel="noopener noreferrer"
+              <a href="https://nexabid-nexabid-client.vercel.app/auth/register" target="_blank" rel="noopener noreferrer"
                 className="px-6 py-3 bg-[#0064e0] text-white font-bold rounded-full hover:bg-[#1877f2] transition-all shadow-lg"
                 style={{ fontSize: 14, zIndex: 10, position: 'relative' }}
                 onPointerDown={e => e.stopPropagation()}>
@@ -512,15 +512,15 @@ export default function LandingPage({ navigate }: Props) {
 
             {/* CTA buttons — all 4 */}
             <div className="hidden md:flex items-center gap-2.5">
-              <a href="http://localhost:5173" target="_blank"
+              <a href="https://nexabid-nexabid-client.vercel.app" target="_blank"
                 className="px-[18px] py-[8px] text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px] hover:bg-[#e8f0fd] transition-all tracking-[-0.1px]">
                 Client Login
               </a>
-              <a href="http://localhost:5174" target="_blank"
+              <a href="https://nexabid-nexabid-manufacturer.vercel.app" target="_blank"
                 className="px-[18px] py-[8px] text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px] hover:bg-[#e8f0fd] transition-all tracking-[-0.1px]">
                 Manufacturer Login
               </a>
-              <a href="http://localhost:5173/auth/register" target="_blank"
+              <a href="https://nexabid-nexabid-client.vercel.app/auth/register" target="_blank"
                 className="px-[20px] py-[9px] text-[14px] font-bold text-white bg-[#0064e0] rounded-[100px] hover:bg-[#1877f2] transition-all shadow-md shadow-blue-600/20 tracking-[-0.1px]">
                 Post an Order
               </a>
@@ -548,10 +548,10 @@ export default function LandingPage({ navigate }: Props) {
               </button>
             ))}
             <div className="grid grid-cols-2 gap-2 pt-3">
-              <a href="http://localhost:5173" target="_blank" className="py-2.5 text-center text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px]">Client</a>
-              <a href="http://localhost:5174" target="_blank" className="py-2.5 text-center text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px]">Manufacturer</a>
+              <a href="https://nexabid-nexabid-client.vercel.app" target="_blank" className="py-2.5 text-center text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px]">Client</a>
+              <a href="https://nexabid-nexabid-manufacturer.vercel.app" target="_blank" className="py-2.5 text-center text-[14px] font-semibold text-[#0064e0] border-2 border-[#0064e0] rounded-[100px]">Manufacturer</a>
             </div>
-            <a href="http://localhost:5173/auth/register" target="_blank"
+            <a href="https://nexabid-nexabid-client.vercel.app/auth/register" target="_blank"
               className="block py-3 text-center text-[14px] font-bold text-white bg-[#0064e0] rounded-[100px] mt-2">
               Post an Order
             </a>
@@ -638,7 +638,7 @@ export default function LandingPage({ navigate }: Props) {
                 desc: 'Review AI-scored bids, pay into escrow, track delivery in real time.',
                 img: 'https://images.unsplash.com/photo-1664575602554-2087b04935a5?w=900&q=95&auto=format&fit=crop',
                 cta: 'Open Client Portal',
-                href: 'http://localhost:5173',
+                href: 'https://nexabid-nexabid-client.vercel.app',
                 btnColor: '#0064e0',
               },
               {
@@ -647,7 +647,7 @@ export default function LandingPage({ navigate }: Props) {
                 desc: 'Swipe through matching orders, bid with AI guidance, get paid on delivery.',
                 img: 'https://images.unsplash.com/photo-1565043589221-1a6fd9ae45c7?w=900&q=95&auto=format&fit=crop',
                 cta: 'Open Manufacturer Portal',
-                href: 'http://localhost:5174',
+                href: 'https://nexabid-nexabid-manufacturer.vercel.app',
                 btnColor: '#1a7f37',
               },
               {
@@ -656,7 +656,7 @@ export default function LandingPage({ navigate }: Props) {
                 desc: 'Manage users, resolve disputes, track payments and platform health.',
                 img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=95&auto=format&fit=crop',
                 cta: 'Admin Panel',
-                href: 'https://nexabid-nexabid-landing.vercel.app/',
+                href: 'https://nexabid-nexabid-admin.vercel.app',
                 btnColor: '#6e40c9',
               },
             ].map((portal, i) => (
@@ -755,11 +755,11 @@ export default function LandingPage({ navigate }: Props) {
             Join 1,200+ manufacturers and 500+ corporate buyers already on NexaBid.
           </p>
           <div className="flex flex-wrap justify-center gap-4 reveal reveal-delay-2">
-            <a href="http://localhost:5173/auth/register" target="_blank"
+            <a href="https://nexabid-nexabid-client.vercel.app/auth/register" target="_blank"
               className="px-8 py-3.5 bg-white text-[#0064e0] text-[15px] font-bold rounded-[100px] hover:bg-white/90 transition-all shadow-lg">
               Post Your First Order — Free
             </a>
-            <a href="http://localhost:5174/auth/register" target="_blank"
+            <a href="https://nexabid-nexabid-manufacturer.vercel.app/auth/register" target="_blank"
               className="px-8 py-3.5 bg-white/10 border-2 border-white/40 text-white text-[15px] font-semibold rounded-[100px] hover:bg-white/20 transition-all backdrop-blur">
               Register as Manufacturer
             </a>
