@@ -198,3 +198,41 @@ docker-compose exec nginx nginx -s reload
 **Razorpay payment fails:** Ensure you're using live keys (`rzp_live_`) in production, not test keys.
 
 **Redis connection error:** App works without Redis (OTPs stored in memory), but session data won't persist across restarts.
+
+---
+
+## Recent Feature Additions
+
+### Authentication
+- **Email Verification** — OTP sent on register, `POST /auth/verify-email`. Verification is optional (login allowed without it). Enable by setting `GMAIL_USER` + `GMAIL_APP_PASSWORD` in backend `.env`.
+- **Google OAuth** — Set `GOOGLE_CLIENT_ID` in backend `.env` and `VITE_GOOGLE_CLIENT_ID` in client/manufacturer `.env`. Uses Google Identity Services (no npm package needed).
+
+### User Features
+- **Avatar Upload** — `POST /profile/avatar` (base64, max 2MB). Updates sidebar instantly via auth store.
+- **KYC Documents** — Manufacturers can upload GST, PAN, Aadhaar via `POST /profile/kyc`. Admin reviews at `/admin/users/:id` KYC tab.
+- **Withdraw Bid** — Manufacturers can withdraw pending bids via `DELETE /bids/:id/withdraw`.
+- **Cancel Order** — Clients can cancel `posted` or `bidding` orders from order detail page.
+- **PDF Invoice** — Download invoice button on completed orders. Uses browser print-to-PDF.
+
+### UI/UX
+- **Dark Mode** — Moon/Sun toggle in topbar. Persists to `localStorage`. Respects system preference on first load.
+- **Loading Skeletons** — Shimmer skeleton loaders replace spinners on dashboard and order list pages.
+- **Onboarding Tour** — 4-step modal for new users. Shown once, dismissed to `localStorage`.
+- **Mobile Responsive** — Slide-in sidebar with overlay, hamburger menu, responsive grids on all pages.
+- **Real-time Notifications** — Socket.io toast notifications in bottom-right corner. Auto-dismiss after 5s.
+
+### Admin
+- **Bulk Actions** — Select multiple users, bulk suspend or activate.
+- **KYC Review** — `PATCH /admin/users/:id/kyc` with approve/reject + reason.
+- **Manual Refund** — "Trigger Refund" button on order detail when escrow is active.
+
+### Environment Variables Added
+```env
+# Backend (.env)
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Client + Manufacturer (.env)
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_API_URL=http://localhost:3000/api
+```

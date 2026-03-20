@@ -109,10 +109,8 @@ export default function RegisterPage() {
         role: 'client',
       })
       const { user, accessToken } = response.data.data
-      setPendingUser({ user, accessToken })
-      setPendingEmail(data.email)
-      setVerifyStep(true)
-      startResendCooldown()
+      login(user, accessToken)
+      navigate('/dashboard')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } }
       setSubmitError(error.response?.data?.message || 'Failed to create account. Please try again.')

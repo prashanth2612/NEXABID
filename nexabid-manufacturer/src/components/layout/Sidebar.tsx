@@ -34,7 +34,7 @@ const navItems = [
   },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => void }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
@@ -50,7 +50,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-[240px] min-h-screen bg-[#0A0A0A] flex flex-col fixed left-0 top-0 bottom-0 z-40">
+    <aside className={`w-[240px] min-h-screen bg-[#0A0A0A] flex flex-col fixed left-0 top-0 bottom-0 z-40 transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b border-white/[0.06]">
         <div className="flex items-center gap-2.5">

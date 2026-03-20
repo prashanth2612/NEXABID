@@ -105,11 +105,9 @@ export default function RegisterPage() {
         role: 'manufacturer',
       })
       const { user, accessToken } = response.data.data
-      // Store pending auth, show verify screen
-      setPendingEmail(data.email)
-      ;(window as any).__pendingMfrAuth = { user, accessToken }
-      setVerifyStep(true)
-      startResendCooldown()
+      login(user, accessToken)
+      resetCategories()
+      navigate('/select-categories')
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } }
       setSubmitError(error.response?.data?.message || 'Failed to create account. Please try again.')

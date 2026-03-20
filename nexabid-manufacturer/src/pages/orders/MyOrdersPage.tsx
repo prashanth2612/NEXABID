@@ -6,12 +6,14 @@ import {
 } from 'lucide-react'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { ListRowSkeleton } from '@/components/ui/Skeleton'
+import EmptyState from '@/components/ui/EmptyState'
 
 interface Bid {
   id: string
   proposedPrice: number
   deliveryDays: number
-  status: 'pending' | 'accepted' | 'rejected'
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn'
   createdAt: string
   orderId: {
     id: string
@@ -42,10 +44,11 @@ const ORDER_STATUS: Record<string, { label: string; color: string; bg: string }>
 }
 
 const TABS = [
-  { label: 'All',      value: 'all' },
-  { label: 'Accepted', value: 'accepted' },
-  { label: 'Pending',  value: 'pending' },
-  { label: 'Rejected', value: 'rejected' },
+  { label: 'All',       value: 'all' },
+  { label: 'Accepted',  value: 'accepted' },
+  { label: 'Pending',   value: 'pending' },
+  { label: 'Rejected',  value: 'rejected' },
+  { label: 'Withdrawn', value: 'withdrawn' },
 ]
 
 export default function MyOrdersPage() {
@@ -149,25 +152,21 @@ export default function MyOrdersPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white rounded-2xl border border-gray-100 flex items-center justify-center py-24">
-          <Loader2 size={22} className="animate-spin text-gray-400" />
+        <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          {[...Array(5)].map((_, i) => <ListRowSkeleton key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-gray-100 py-20 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-4">
-            <Package size={22} className="text-gray-400" />
-          </div>
-          <p className="text-gray-800 font-semibold mb-1">
-            {tab === 'all' ? 'No bids yet' : `No ${tab} bids`}
-          </p>
-          <p className="text-gray-400 text-sm mb-5">
-            {tab === 'all' ? 'Browse orders and submit bids to get started' : `Switch to "All" to see all your bids`}
-          </p>
-          {tab === 'all' && (
-            <Link to="/browse" className="px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold">
-              Browse Orders
-            </Link>
-          )}
+        <div className="bg-white rounded-2xl border border-gray-100">
+          <EmptyState
+            type={search ? 'search' : 'bids'}
+            title={!search && tab !== 'all' ? `No ${tab} bids` : undefined}
+            description={!search && tab !== 'all' ? 'Switch to "All" to see all your bids' : undefined}
+            action={tab === 'all' && !search ? (
+              <Link to="/browse" className="px-5 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold">
+                Browse Orders
+              </Link>
+            ) : undefined}
+          />
         </div>
       ) : (
         <div className="space-y-3">
@@ -186,18 +185,27 @@ export default function MyOrdersPage() {
               >
                 {/* Icon */}
                 <div className={cn('w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0',
-                  bid.status === 'accepted' ? 'bg-green-50' : 'bg-gray-100'
+                  bid.status === 'accepted' ? 'bg-green-50' :
+                  bid.status === 'withdrawn' ? 'bg-gray-50' : 'bg-gray-100'
                 )}>
-                  <Package size={17} className={bid.status === 'accepted' ? 'text-green-600' : 'text-gray-500'} />
+                  <Package size={17} className={
+                    bid.status === 'accepted' ? 'text-green-600' :
+                    bid.status === 'withdrawn' ? 'text-gray-300' : 'text-gray-500'
+                  } />
                 </div>
 
                 {/* Main info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="text-sm font-semibold text-[#0A0A0A] truncate">{order.title}</p>
+                    <p className={cn('text-sm font-semibold truncate', bid.status === 'withdrawn' ? 'text-gray-400 line-through' : 'text-[#0A0A0A]')}>{order.title}</p>
                     {bid.status === 'accepted' && (
                       <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wide flex-shrink-0">
                         ✓ Won
+                      </span>
+                    )}
+                    {bid.status === 'withdrawn' && (
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-400 text-[10px] font-bold rounded-full uppercase tracking-wide flex-shrink-0">
+                        Withdrawn
                       </span>
                     )}
                   </div>

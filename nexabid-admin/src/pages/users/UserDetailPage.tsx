@@ -98,15 +98,24 @@ export default function UserDetailPage() {
   ]
 
   const loadKYC = async () => {
-    if (user.role !== 'manufacturer' || kycData) return
+    if (user.role !== 'manufacturer') return
     try {
-      // Admin fetches KYC via user detail — embedded in user object
+      // Fetch KYC data from admin endpoint
+      const res = await api.get(`/admin/users/${id}`)
+      const u = res.data.data.user
+      setKycData({
+        kycStatus: u.kycStatus || 'none',
+        kycDocuments: u.kycDocuments || [],
+        kycRejectionReason: u.kycRejectionReason,
+      })
+    } catch {
+      // Fallback to embedded user data
       setKycData({
         kycStatus: (user as any).kycStatus || 'none',
         kycDocuments: (user as any).kycDocuments || [],
         kycRejectionReason: (user as any).kycRejectionReason,
       })
-    } catch { /* silent */ }
+    }
   }
 
   const handleKYCAction = async (status: 'approved' | 'rejected', reason?: string) => {
@@ -343,7 +352,25 @@ export default function UserDetailPage() {
                       <p className="text-sm font-medium text-[#0A0A0A] capitalize">{doc.label}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {new Date(doc.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                     </div>
-                    <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Submitted</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Submitted</span>
+                      {doc.data && (
+                        <button
+                          onClick={() => {
+                            const win = window.open('', '_blank')
+                            if (!win) return
+                            if (doc.data.startsWith('data:image')) {
+                              win.document.write(`<html><body style="margin:0;background:#000"><img src="${doc.data}" style="max-width:100%;height:auto"/></body></html>`)
+                            } else {
+                              win.document.write(`<html><body style="margin:0"><iframe src="${doc.data}" style="width:100vw;height:100vh;border:none"/></body></html>`)
+                            }
+                            win.document.close()
+                          }}
+                          className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline">
+                          View
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

@@ -37,7 +37,7 @@ interface MyBid {
   id: string
   proposedPrice: number
   deliveryDays: number
-  status: 'pending' | 'accepted' | 'rejected'
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn'
   message: string
   clientNote?: string
 }

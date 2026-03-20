@@ -205,7 +205,7 @@ router.patch('/users/:id/kyc', authenticate, authorizeRoles('admin'), async (req
     if (!['approved', 'rejected'].includes(status)) {
       res.status(400).json({ success: false, message: 'status must be approved or rejected' }); return
     }
-    const User = (await import('../auth/auth.model')).default
+    // User already imported at top
     const user = await User.findByIdAndUpdate(req.params.id, {
       kycStatus: status,
       ...(status === 'rejected' && reason ? { kycRejectionReason: reason } : {}),

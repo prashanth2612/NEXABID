@@ -40,16 +40,6 @@ export const registerUser = async (data: RegisterInput) => {
   // Send welcome email (non-blocking)
   sendWelcomeEmail(user.email, user.fullName, user.role).catch(() => {})
 
-  // Send email verification OTP (non-blocking)
-  ;(async () => {
-    try {
-      const otp = generateOTP()
-      await saveOTP(`verify:${user.email}`, otp)
-      const { sendVerificationEmail } = await import('../../shared/utils/email')
-      await sendVerificationEmail(user.email, user.fullName, otp)
-    } catch { /* non-fatal */ }
-  })()
-
   return {
     user,
     accessToken,
@@ -68,6 +58,9 @@ export const loginUser = async (data: LoginInput) => {
   if (!user.isActive) {
     throw createError('Your account has been suspended. Please contact support.', 403)
   }
+
+  // If not verified, still allow login but include flag in response
+  // so frontend can prompt verification if needed
 
   // Verify password
   const isPasswordValid = await comparePassword(data.password, user.password)
@@ -191,6 +184,62 @@ export const verifyEmail = async (email: string, otp: string) => {
   const payload = { userId: user._id.toString(), email: user.email, role: user.role }
   const accessToken = signAccessToken(payload)
   const refreshToken = signRefreshToken(payload)
+  user.refreshToken = refreshToken
+  await user.save()
+
+  return { user, accessToken, refreshToken }
+}
+
+// ── Google OAuth — verify token and login/register ──────────────
+export const googleAuth = async (idToken: string, role: 'client' | 'manufacturer') => {
+  // Verify with Google tokeninfo endpoint (no extra packages needed)
+  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`)
+  if (!res.ok) throw createError('Invalid Google token', 401)
+  const payload = await res.json() as {
+    sub: string; email: string; name: string; picture?: string;
+    email_verified: string; aud: string;
+  }
+
+  if (!payload.email || payload.email_verified !== 'true') {
+    throw createError('Google email not verified', 401)
+  }
+
+  // Validate audience if GOOGLE_CLIENT_ID is set
+  const { env } = await import('../../config/env')
+  if (env.GOOGLE_CLIENT_ID && payload.aud !== env.GOOGLE_CLIENT_ID) {
+    throw createError('Token audience mismatch', 401)
+  }
+
+  // Find or create user
+  let user = await User.findOne({ email: payload.email })
+
+  if (!user) {
+    // New user — register via Google
+    user = await User.create({
+      fullName: payload.name,
+      email: payload.email,
+      phone: '',
+      password: await (await import('../../shared/utils/hash')).hashPassword(
+        Math.random().toString(36) + Date.now().toString(36)
+      ),
+      role,
+      avatar: payload.picture,
+      isVerified: true,  // Google already verified the email
+      googleId: payload.sub,
+    })
+  } else {
+    // Existing user — update avatar/googleId if missing
+    if (!user.isVerified) { user.isVerified = true }
+    if (!user.avatar && payload.picture) { user.avatar = payload.picture }
+    if (!(user as any).googleId) { (user as any).googleId = payload.sub }
+    await user.save()
+  }
+
+  if (!user.isActive) throw createError('Your account has been suspended.', 403)
+
+  const jwtPayload = { userId: user._id.toString(), email: user.email, role: user.role }
+  const accessToken = signAccessToken(jwtPayload)
+  const refreshToken = signRefreshToken(jwtPayload)
   user.refreshToken = refreshToken
   await user.save()
 

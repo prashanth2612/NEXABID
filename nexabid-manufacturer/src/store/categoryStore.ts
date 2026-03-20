@@ -11,6 +11,10 @@ export const ALL_CATEGORIES = [
   'Food & Beverages',
   'Automotive Parts',
   'Paper & Packaging',
+  'Machinery & Equipment',
+  'Rubber & Seals',
+  'Leather & Footwear',
+  'Sports & Toys',
   'Other',
 ] as const
 
@@ -27,6 +31,10 @@ export const CATEGORY_META: Record<Category, { emoji: string; description: strin
   'Automotive Parts':         { emoji: '🚗', description: 'Engine, body, brake parts',  color: '#ef4444' },
   'Paper & Packaging':        { emoji: '📦', description: 'Boxes, cartons, labels',     color: '#8b5cf6' },
   'Other':                    { emoji: '🏭', description: 'Miscellaneous manufacturing', color: '#6b7280' },
+  'Machinery & Equipment':    { emoji: '⚙️', description: 'Industrial machines, tools', color: '#22c55e' },
+  'Rubber & Seals':           { emoji: '🔧', description: 'Gaskets, O-rings, seals', color: '#ef4444' },
+  'Leather & Footwear':       { emoji: '👟', description: 'Shoes, bags, belts', color: '#f59e0b' },
+  'Sports & Toys':            { emoji: '🏀', description: 'Sports goods, toys, games', color: '#0ea5e9' },
 }
 
 interface CategoryStore {

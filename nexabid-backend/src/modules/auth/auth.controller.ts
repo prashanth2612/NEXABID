@@ -146,3 +146,19 @@ export const verifyEmailOTP = async (req: Request, res: Response, next: NextFunc
     }, 'Email verified successfully')
   } catch (e) { next(e) }
 }
+
+export const googleLogin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { idToken, role } = req.body
+    if (!idToken) { res.status(400).json({ success: false, message: 'idToken is required' }); return }
+    if (!['client', 'manufacturer'].includes(role)) {
+      res.status(400).json({ success: false, message: 'role must be client or manufacturer' }); return
+    }
+    const result = await authService.googleAuth(idToken, role)
+    sendSuccess(res, {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    }, 'Google login successful')
+  } catch (e) { next(e) }
+}

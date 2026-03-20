@@ -27,6 +27,8 @@ export interface IUser extends Document {
   kycStatus: 'none' | 'pending' | 'approved' | 'rejected'
   kycDocuments: Array<{ type: string; label: string; data: string; uploadedAt: Date }>
   kycRejectionReason?: string
+  // OAuth
+  googleId?: string
   // Bank / payout details (manufacturer)
   bankAccountName?: string
   bankAccountNumber?: string
@@ -79,7 +81,7 @@ const userSchema = new Schema<IUser>(
     address: { type: String, trim: true },
     website: { type: String, trim: true },
     linkedin: { type: String, trim: true },
-    isVerified: { type: Boolean, default: false },
+    isVerified: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     // KYC
@@ -91,6 +93,7 @@ const userSchema = new Schema<IUser>(
       uploadedAt: { type: Date, default: Date.now },
     }],
     kycRejectionReason: { type: String },
+    googleId: { type: String },
     bankAccountName:   { type: String, trim: true },
     bankAccountNumber: { type: String, trim: true },
     bankIfsc:          { type: String, trim: true, uppercase: true },

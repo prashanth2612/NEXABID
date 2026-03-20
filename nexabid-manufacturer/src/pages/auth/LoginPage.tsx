@@ -9,6 +9,7 @@ import { useCategoryStore } from '@/store/categoryStore'
 import { cn } from '@/lib/utils'
 import api from '@/lib/api'
 import type { LoginFormData } from '@/types/auth'
+import GoogleAuthButton from '@/components/GoogleAuthButton'
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -319,6 +321,20 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Google OAuth */}
+          <div className="mt-4">
+            <div className="relative flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400 font-medium">or</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+            <GoogleAuthButton
+              role="manufacturer"
+              onSuccess={(user, accessToken) => { login(user, accessToken); navigate('/dashboard') }}
+              onError={(msg) => setError('email', { message: msg })}
+            />
+          </div>
 
           {/* Register link */}
           <p className="mt-6 text-center text-sm text-gray-500 animate-fade-up animate-delay-400">

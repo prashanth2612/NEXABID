@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Users, Package, Gavel, CreditCard, TrendingUp, ArrowRight, Loader2 } from 'lucide-react'
+import { Users, Package, Gavel, CreditCard, TrendingUp, ArrowRight, Loader2, ShieldCheck } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import api from '@/lib/api'
 import { fmt, fmtTime } from '@/lib/utils'
@@ -38,12 +38,17 @@ const MOCK_CHART = Array.from({ length: 7 }, (_, i) => ({
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [kycPending, setKycPending] = useState<any[]>([])
 
   useEffect(() => {
-    api.get('/admin/stats')
-      .then(r => setStats(r.data.data))
-      .catch(console.error)
-      .finally(() => setLoading(false))
+    Promise.all([
+      api.get('/admin/stats'),
+      api.get('/admin/users'),
+    ]).then(([statsRes, usersRes]) => {
+      setStats(statsRes.data.data)
+      const allUsers = usersRes.data.data.users || []
+      setKycPending(allUsers.filter((u: any) => u.kycStatus === 'pending'))
+    }).catch(console.error).finally(() => setLoading(false))
   }, [])
 
   if (loading) return (
@@ -66,8 +71,38 @@ export default function DashboardPage() {
         <p className="text-gray-500 text-sm mt-0.5">Platform-wide stats and activity</p>
       </div>
 
+      {/* KYC pending alert */}
+      {kycPending.length > 0 && (
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <ShieldCheck size={16} className="text-orange-600" />
+            <p className="text-sm font-semibold text-orange-700">
+              {kycPending.length} manufacturer{kycPending.length > 1 ? 's' : ''} awaiting KYC review
+            </p>
+            <Link to="/users?tab=kyc_pending"
+              className="ml-auto text-xs font-bold text-orange-600 hover:text-orange-800 underline">
+              Review all →
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {kycPending.slice(0, 3).map((u: any) => (
+              <div key={u._id || u.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-orange-100">
+                <div>
+                  <p className="text-sm font-medium text-[#0A0A0A]">{u.fullName}</p>
+                  <p className="text-xs text-gray-500">{u.email} · {u.businessName || u.category || 'Manufacturer'}</p>
+                </div>
+                <Link to={`/users/${u._id || u.id}`}
+                  className="px-3 py-1.5 bg-orange-600 text-white text-xs font-bold rounded-lg hover:bg-orange-700 transition-colors">
+                  Review KYC →
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {cards.map(c => (
           <div key={c.label} className="bg-white rounded-2xl border border-gray-100 p-5">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${c.color.split(' ')[0]}`}>

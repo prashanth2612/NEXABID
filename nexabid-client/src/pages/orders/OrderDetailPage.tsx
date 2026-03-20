@@ -10,6 +10,7 @@ import type { Order, Bid } from '@/types/order'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
 import PaymentModal from '@/components/payments/PaymentModal'
+import { generateInvoice } from '@/lib/generateInvoice'
 
 const formatCurrency = (n: number) => `₹${n.toLocaleString('en-IN')}`
 const formatDate = (d: string) =>
@@ -248,12 +249,35 @@ Respond ONLY with JSON (no markdown):
         >
           <ArrowLeft size={15} /> Back to orders
         </button>
-        {['posted', 'bidding'].includes(order.status) && (
-          <button onClick={handleCancelOrder}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
-            Cancel Order
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {order.status === 'completed' && (
+            <button
+              onClick={() => {
+                const acceptedBid = bids.find(b => b.status === 'accepted')
+                generateInvoice({
+                  orderNumber: order.orderNumber || order.id,
+                  orderTitle: order.title,
+                  category: order.category,
+                  clientName: (order as any).clientId?.fullName || 'Client',
+                  clientEmail: (order as any).clientId?.email || '',
+                  manufacturerName: (order as any).acceptedManufacturerId?.fullName || acceptedBid?.manufacturerId?.fullName || 'Manufacturer',
+                  manufacturerEmail: (order as any).acceptedManufacturerId?.email || acceptedBid?.manufacturerId?.email || '',
+                  amount: acceptedBid?.proposedPrice || order.budget,
+                  completedAt: order.updatedAt,
+                  createdAt: order.createdAt,
+                })
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-600 border border-green-200 rounded-xl hover:bg-green-50 transition-colors">
+              ↓ Download Invoice
+            </button>
+          )}
+          {['posted', 'bidding'].includes(order.status) && (
+            <button onClick={handleCancelOrder}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
+              Cancel Order
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Order header */}

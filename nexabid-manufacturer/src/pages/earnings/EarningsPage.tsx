@@ -83,6 +83,23 @@ export default function EarningsPage() {
   const totalFees   = released.reduce((s, p) => s + (p.platformFee ?? 0), 0)
   const filtered    = tab === 'all' ? payments : payments.filter(p => p.escrowStatus === tab)
 
+  // Monthly earnings for chart — last 6 months
+  const monthlyEarnings = (() => {
+    const months: { label: string; value: number }[] = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - i)
+      const label = d.toLocaleString('en-IN', { month: 'short' })
+      const y = d.getFullYear(), m = d.getMonth()
+      const value = released
+        .filter(p => { const pd = new Date(p.releasedAt || p.createdAt); return pd.getFullYear() === y && pd.getMonth() === m })
+        .reduce((s, p) => s + (p.manufacturerPayout ?? p.amount), 0)
+      months.push({ label, value })
+    }
+    return months
+  })()
+  const chartMax = Math.max(...monthlyEarnings.map(m => m.value), 1)
+
   const STATUS_CONFIG = {
     escrowed: { label: 'In Escrow',  color: 'text-blue-600',  bg: 'bg-blue-50',   icon: Shield },
     released: { label: 'Released',   color: 'text-green-600', bg: 'bg-green-50',  icon: CheckCircle2 },
@@ -115,6 +132,41 @@ export default function EarningsPage() {
             <p className="text-xs text-gray-400 mt-0.5">{c.sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Monthly Earnings Chart */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-5">
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-sm font-semibold text-[#0A0A0A]">Monthly Earnings</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Last 6 months · released payments only</p>
+          </div>
+          <span className="text-lg font-black text-[#0A0A0A]">{fmt(totalEarned)}</span>
+        </div>
+        <div className="flex items-end gap-3 h-36">
+          {monthlyEarnings.map((m, i) => {
+            const heightPct = chartMax > 0 ? (m.value / chartMax) * 100 : 0
+            const isLast = i === monthlyEarnings.length - 1
+            return (
+              <div key={m.label} className="flex-1 flex flex-col items-center gap-1.5 group">
+                <div className="relative w-full flex items-end justify-center" style={{ height: 112 }}>
+                  {m.value > 0 && (
+                    <div className="absolute bottom-full mb-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                      <div className="bg-[#0A0A0A] text-white text-[10px] font-bold px-2 py-1 rounded-lg whitespace-nowrap">
+                        {fmt(m.value)}
+                      </div>
+                    </div>
+                  )}
+                  <div
+                    className={cn('w-full rounded-t-lg transition-all duration-500', isLast ? 'bg-[#0A0A0A]' : 'bg-gray-100 group-hover:bg-gray-200')}
+                    style={{ height: `${Math.max(heightPct, m.value > 0 ? 8 : 2)}%` }}
+                  />
+                </div>
+                <span className={cn('text-[10px] font-medium', isLast ? 'text-[#0A0A0A]' : 'text-gray-400')}>{m.label}</span>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Bank details card */}

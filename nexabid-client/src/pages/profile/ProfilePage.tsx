@@ -173,6 +173,7 @@ export default function ProfilePage() {
             size={88}
             onUpdate={(newAvatar) => {
               setProfile((p: ProfileData | null) => p ? { ...p, avatar: newAvatar } : p)
+              if (user) setUser({ ...user, avatar: newAvatar })
             }}
           />
         </div>

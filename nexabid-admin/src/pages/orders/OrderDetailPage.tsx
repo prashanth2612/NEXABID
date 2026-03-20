@@ -189,11 +189,33 @@ export default function AdminOrderDetailPage() {
         </div>
 
         {order.escrowAmount && (
-          <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-green-50 rounded-xl border border-green-100">
-            <Shield size={14} className="text-green-600" />
-            <p className="text-sm text-green-700">
-              <span className="font-semibold">{fmt(order.escrowAmount)}</span> {order.escrowStatus === 'released' ? 'released from escrow' : 'secured in escrow'}
-            </p>
+          <div className="mt-4 flex items-center justify-between gap-2 px-4 py-3 bg-green-50 rounded-xl border border-green-100">
+            <div className="flex items-center gap-2">
+              <Shield size={14} className="text-green-600" />
+              <p className="text-sm text-green-700">
+                <span className="font-semibold">{fmt(order.escrowAmount)}</span> {order.escrowStatus === 'released' ? 'released from escrow' : order.escrowStatus === 'refunded' ? 'refunded to client' : 'secured in escrow'}
+              </p>
+            </div>
+            {order.escrowStatus === 'escrowed' && (
+              <button
+                onClick={async () => {
+                  if (!window.confirm('Trigger a full refund to the client? This cannot be undone.')) return
+                  try {
+                    const payRes = await api.get(`/admin/payments?orderId=${order._id || order.id}`)
+                    const payments = payRes.data.data.payments || []
+                    const payment = payments.find((p: any) => p.escrowStatus === 'escrowed')
+                    if (!payment) { alert('No escrowed payment found'); return }
+                    await api.post(`/payments/${payment._id}/refund`)
+                    alert('Refund triggered successfully')
+                    window.location.reload()
+                  } catch (e: any) {
+                    alert(e.response?.data?.message || 'Refund failed')
+                  }
+                }}
+                className="px-3 py-1.5 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors flex-shrink-0">
+                Trigger Refund
+              </button>
+            )}
           </div>
         )}
       </div>

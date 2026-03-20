@@ -80,7 +80,6 @@ export const getProfileStats = async (req: AuthRequest, res: Response, next: Nex
 
 export const deleteAccount = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { User } = await import('../auth/auth.model')
     await User.findByIdAndUpdate(req.user!.userId, {
       isActive: false,
       email: `deleted_${req.user!.userId}@nexabid.deleted`,
@@ -112,7 +111,6 @@ export const uploadAvatar = async (req: AuthRequest, res: Response, next: NextFu
     if (sizeBytes > 2 * 1024 * 1024) {
       res.status(400).json({ success: false, message: 'Image must be under 2MB' }); return
     }
-    const User = (await import('../auth/auth.model')).default
     const user = await User.findByIdAndUpdate(
       req.user!.userId,
       { avatar },
@@ -133,7 +131,6 @@ export const uploadKYCDocument = async (req: AuthRequest, res: Response, next: N
     if (!validTypes.includes(type)) {
       res.status(400).json({ success: false, message: 'Invalid document type' }); return
     }
-    // Validate base64
     const matches = data.match(/^data:(application\/pdf|image\/[a-z]+);base64,/)
     if (!matches) {
       res.status(400).json({ success: false, message: 'Invalid file format. PDF or image required.' }); return
@@ -143,23 +140,24 @@ export const uploadKYCDocument = async (req: AuthRequest, res: Response, next: N
       res.status(400).json({ success: false, message: 'File must be under 5MB' }); return
     }
 
-    const User = (await import('../auth/auth.model')).default
-    const user = await User.findById(req.user!.userId)
+    const UserModel = User
+    const user = await UserModel.findById(req.user!.userId)
     if (!user) { res.status(404).json({ success: false, message: 'User not found' }); return }
 
-    // Replace existing doc of same type or add new
-    const existing = user.kycDocuments.findIndex((d: any) => d.type === type)
+    if (!Array.isArray((user as any).kycDocuments)) (user as any).kycDocuments = []
+    const docs = (user as any).kycDocuments as any[]
+    const existing = docs.findIndex((d: any) => d.type === type)
     if (existing >= 0) {
-      user.kycDocuments[existing] = { type, label, data, uploadedAt: new Date() }
+      docs[existing] = { type, label, data, uploadedAt: new Date() }
     } else {
-      user.kycDocuments.push({ type, label, data, uploadedAt: new Date() })
+      docs.push({ type, label, data, uploadedAt: new Date() })
     }
-    user.kycStatus = 'pending'
+    ;(user as any).kycStatus = 'pending'
     await user.save()
 
     sendSuccess(res, {
-      kycStatus: user.kycStatus,
-      kycDocuments: user.kycDocuments.map((d: any) => ({ type: d.type, label: d.label, uploadedAt: d.uploadedAt })),
+      kycStatus: (user as any).kycStatus,
+      kycDocuments: docs.map((d: any) => ({ type: d.type, label: d.label, uploadedAt: d.uploadedAt })),
     }, 'Document uploaded successfully')
   } catch (e) { next(e) }
 }
@@ -167,13 +165,14 @@ export const uploadKYCDocument = async (req: AuthRequest, res: Response, next: N
 // ── Get KYC status ──────────────────────────────────────────────
 export const getKYCStatus = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const User = (await import('../auth/auth.model')).default
-    const user = await User.findById(req.user!.userId).select('kycStatus kycDocuments kycRejectionReason')
+    const UserModel = User
+    const user = await UserModel.findById(req.user!.userId).select('kycStatus kycDocuments kycRejectionReason')
     if (!user) { res.status(404).json({ success: false, message: 'User not found' }); return }
+    const docs = Array.isArray((user as any).kycDocuments) ? (user as any).kycDocuments : []
     sendSuccess(res, {
-      kycStatus: user.kycStatus,
-      kycRejectionReason: user.kycRejectionReason,
-      kycDocuments: user.kycDocuments.map((d: any) => ({ type: d.type, label: d.label, uploadedAt: d.uploadedAt })),
+      kycStatus: (user as any).kycStatus || 'none',
+      kycRejectionReason: (user as any).kycRejectionReason,
+      kycDocuments: docs.map((d: any) => ({ type: d.type, label: d.label, uploadedAt: d.uploadedAt })),
     })
   } catch (e) { next(e) }
 }

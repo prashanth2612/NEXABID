@@ -23,10 +23,6 @@ const envSchema = z.object({
   RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
   GMAIL_APP_PASSWORD: z.string().optional(),
 
-  RAZORPAY_KEY_ID: z.string().optional(),
-  RAZORPAY_KEY_SECRET: z.string().optional(),
-  RAZORPAY_WEBHOOK_SECRET: z.string().optional(),
-
   EMAIL_FROM_NAME: z.string().default('NexaBid'),
   EMAIL_FROM_ADDRESS: z.string().default('noreply@nexabid.com'),
 
@@ -35,6 +31,9 @@ const envSchema = z.object({
   CLIENT_URL: z.string().default('http://localhost:5173'),
   MANUFACTURER_URL: z.string().default('http://localhost:5174'),
   ADMIN_URL: z.string().default('http://localhost:5175'),
+
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 })
 
 const parsed = envSchema.safeParse(process.env)

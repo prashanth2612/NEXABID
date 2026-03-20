@@ -21,6 +21,7 @@ router.post('/verify-otp', validate(verifyOTPSchema), authController.verifyOTP)
 router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword)
 router.post('/send-verification', authController.sendEmailVerification)
 router.post('/verify-email', authController.verifyEmailOTP)
+router.post('/google', authController.googleLogin)
 
 // Protected routes
 router.get('/me', authenticate, authController.getMe)

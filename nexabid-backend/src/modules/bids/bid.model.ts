@@ -7,7 +7,7 @@ export interface IBid extends Document {
   proposedPrice: number
   deliveryDays: number
   message: string
-  status: 'pending' | 'accepted' | 'rejected'
+  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn'
   aiConfidenceScore?: number
   clientNote?: string   // client's reply during negotiation
   createdAt: Date
@@ -23,7 +23,7 @@ const bidSchema = new Schema<IBid>(
     message: { type: String, required: true, trim: true },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected'],
+      enum: ['pending', 'accepted', 'rejected', 'withdrawn'],
       default: 'pending',
     },
     aiConfidenceScore: { type: Number, min: 0, max: 100 },

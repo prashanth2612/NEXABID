@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from 'react'
-import { Bell, Search, CheckCheck, X } from 'lucide-react'
+import { Bell, Search, CheckCheck, X, Moon, Sun } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { getSocket, disconnectSocket } from '@/lib/socket'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { useTheme } from '@/hooks/useTheme'
 
 interface Notification {
   id: string
@@ -28,8 +29,9 @@ const notifIcon: Record<string, string> = {
   new_message: '💬', system: '🔔',
 }
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { user, token } = useAuthStore()
+  const { isDark, toggle: toggleTheme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -86,11 +88,24 @@ export default function Topbar() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30">
-      <h1 className="text-base font-semibold text-[#0A0A0A] tracking-tight">{getTitle()}</h1>
+    <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+      <div className="flex items-center gap-3">
+        <button onClick={onMenuClick}
+          className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M2 4h14M2 9h14M2 14h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+          </svg>
+        </button>
+        <h1 className="text-base font-semibold text-[#0A0A0A] tracking-tight">{getTitle()}</h1>
+      </div>
       <div className="flex items-center gap-2">
         <button className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors">
           <Search size={17} />
+        </button>
+        <button onClick={toggleTheme}
+          className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors"
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+          {isDark ? <Sun size={17} /> : <Moon size={17} />}
         </button>
         <div ref={panelRef} className="relative">
           <button onClick={() => setShowPanel(!showPanel)}

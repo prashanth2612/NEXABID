@@ -94,7 +94,7 @@ export default function PaymentsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Payments', value: String(payments.length), icon: IndianRupee,   color: 'text-blue-600',   bg: 'bg-blue-50' },
           { label: 'In Escrow',      value: fmt(totalEscrow),        icon: ShieldCheck,   color: 'text-orange-600', bg: 'bg-orange-50' },

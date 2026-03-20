@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
+import { ListRowSkeleton } from '@/components/ui/Skeleton'
 
 const fmt = (n: number) => `₹${n.toLocaleString('en-IN')}`
 
@@ -139,7 +140,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {statCards.map((s) => (
           <div key={s.label} className="bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
@@ -155,9 +156,9 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Active orders */}
-        <div className="col-span-2 bg-white rounded-2xl border border-gray-100">
+        <div className="col-span-1 md:col-span-2 bg-white rounded-2xl border border-gray-100">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-50">
             <h3 className="text-sm font-semibold text-[#0A0A0A]">Active Orders</h3>
             <Link to="/orders" className="text-xs text-gray-500 hover:text-black flex items-center gap-1 transition-colors">
@@ -165,8 +166,8 @@ export default function DashboardPage() {
             </Link>
           </div>
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 size={20} className="animate-spin text-gray-400" />
+            <div className="divide-y divide-gray-50">
+              {[...Array(3)].map((_, i) => <ListRowSkeleton key={i} />)}
             </div>
           ) : activeOrders.length === 0 ? (
             <div className="py-16 flex flex-col items-center justify-center text-center px-6">
@@ -257,8 +258,8 @@ export default function DashboardPage() {
           </Link>
         </div>
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 size={20} className="animate-spin text-gray-400" />
+          <div className="divide-y divide-gray-50">
+            {[...Array(4)].map((_, i) => <ListRowSkeleton key={i} />)}
           </div>
         ) : activities.length === 0 ? (
           <div className="py-12 text-center">

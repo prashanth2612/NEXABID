@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
+import GoogleAuthButton from '@/components/GoogleAuthButton'
 import api from '@/lib/api'
 import type { LoginFormData } from '@/types/auth'
 
@@ -24,6 +25,7 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -311,6 +313,20 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Google OAuth */}
+          <div className="mt-4">
+            <div className="relative flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400 font-medium">or</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+            <GoogleAuthButton
+              role="client"
+              onSuccess={(user, accessToken) => { login(user, accessToken); navigate('/dashboard') }}
+              onError={(msg) => setError('email', { message: msg })}
+            />
+          </div>
 
           {/* Footer link */}
           <p className="mt-6 text-center text-sm text-gray-500 animate-fade-up animate-delay-400">
