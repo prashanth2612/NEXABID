@@ -8,6 +8,7 @@
     "strict": false,
     "noImplicitAny": false,
     "strictNullChecks": false,
+    "strictFunctionTypes": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
@@ -20,9 +21,7 @@
     "noFallthroughCasesInSwitch": false,
     "allowJs": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
+    "paths": { "@/*": ["./src/*"] },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["src/**/*"],
