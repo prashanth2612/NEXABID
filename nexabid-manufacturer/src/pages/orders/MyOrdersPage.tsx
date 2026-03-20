@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Package, ChevronRight, Loader2, IndianRupee,
-  CheckCircle2, Clock, XCircle, AlertCircle,
+  CheckCircle2, Clock, XCircle, AlertCircle, Search,
 } from 'lucide-react'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
@@ -52,6 +52,7 @@ export default function MyOrdersPage() {
   const [bids, setBids] = useState<Bid[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
   const [tab, setTab] = useState('all')
 
   useEffect(() => {
@@ -73,7 +74,18 @@ export default function MyOrdersPage() {
       .finally(() => setLoading(false))
   }, [])
 
-  const filtered = tab === 'all' ? bids : bids.filter(b => b.status === tab)
+  const filtered = bids
+    .filter(b => tab === 'all' || b.status === tab)
+    .filter(b => {
+      if (!search) return true
+      const q = search.toLowerCase()
+      const order = b.orderId as any
+      return (
+        order?.title?.toLowerCase().includes(q) ||
+        order?.orderNumber?.toLowerCase().includes(q) ||
+        order?.category?.toLowerCase().includes(q)
+      )
+    })
 
   const countFor = (val: string) => val === 'all' ? bids.length : bids.filter(b => b.status === val).length
 
@@ -98,6 +110,24 @@ export default function MyOrdersPage() {
           className="flex items-center gap-2 px-4 py-2.5 bg-[#0A0A0A] text-white rounded-xl text-sm font-semibold hover:bg-[#1a1a1a] transition-colors">
           Browse More
         </Link>
+      </div>
+
+      {/* Search */}
+      <div className="relative">
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search by order title, number or category..."
+          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-[#0A0A0A] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black/30 transition-all"
+        />
+        {search && (
+          <button onClick={() => setSearch('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Tabs */}

@@ -128,3 +128,21 @@ export const resetPassword = async (
     next(error)
   }
 }
+
+export const sendEmailVerification = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await authService.sendVerificationOTP(req.body.email)
+    sendSuccess(res, null, 'Verification code sent to your email')
+  } catch (e) { next(e) }
+}
+
+export const verifyEmailOTP = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const result = await authService.verifyEmail(req.body.email, req.body.otp)
+    sendSuccess(res, {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    }, 'Email verified successfully')
+  } catch (e) { next(e) }
+}

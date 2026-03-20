@@ -23,6 +23,10 @@ export interface IUser extends Document {
   address?: string
   website?: string
   linkedin?: string
+  // KYC
+  kycStatus: 'none' | 'pending' | 'approved' | 'rejected'
+  kycDocuments: Array<{ type: string; label: string; data: string; uploadedAt: Date }>
+  kycRejectionReason?: string
   // Bank / payout details (manufacturer)
   bankAccountName?: string
   bankAccountNumber?: string
@@ -78,6 +82,15 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     rating: { type: Number, default: 0, min: 0, max: 5 },
+    // KYC
+    kycStatus: { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+    kycDocuments: [{
+      type: { type: String },   // 'gst', 'pan', 'aadhaar', 'other'
+      label: { type: String },
+      data: { type: String },   // base64
+      uploadedAt: { type: Date, default: Date.now },
+    }],
+    kycRejectionReason: { type: String },
     bankAccountName:   { type: String, trim: true },
     bankAccountNumber: { type: String, trim: true },
     bankIfsc:          { type: String, trim: true, uppercase: true },

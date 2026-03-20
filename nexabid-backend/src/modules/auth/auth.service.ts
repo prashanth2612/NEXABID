@@ -40,6 +40,16 @@ export const registerUser = async (data: RegisterInput) => {
   // Send welcome email (non-blocking)
   sendWelcomeEmail(user.email, user.fullName, user.role).catch(() => {})
 
+  // Send email verification OTP (non-blocking)
+  ;(async () => {
+    try {
+      const otp = generateOTP()
+      await saveOTP(`verify:${user.email}`, otp)
+      const { sendVerificationEmail } = await import('../../shared/utils/email')
+      await sendVerificationEmail(user.email, user.fullName, otp)
+    } catch { /* non-fatal */ }
+  })()
+
   return {
     user,
     accessToken,
@@ -153,4 +163,36 @@ export const resetPassword = async (data: ResetPasswordInput) => {
 
   // Delete OTP
   await deleteOTP(data.email)
+}
+
+// ── Send email verification OTP ─────────────────────────────────
+export const sendVerificationOTP = async (email: string) => {
+  const user = await User.findOne({ email })
+  if (!user) throw createError('User not found', 404)
+  if (user.isVerified) throw createError('Email already verified', 400)
+
+  const otp = generateOTP()
+  await saveOTP(`verify:${email}`, otp)
+  await (await import('../../shared/utils/email')).sendVerificationEmail(email, user.fullName, otp)
+}
+
+// ── Verify email with OTP ────────────────────────────────────────
+export const verifyEmail = async (email: string, otp: string) => {
+  const valid = await verifyOTP(`verify:${email}`, otp)
+  if (!valid) throw createError('Invalid or expired OTP', 400)
+
+  const user = await User.findOneAndUpdate(
+    { email },
+    { isVerified: true },
+    { new: true }
+  )
+  if (!user) throw createError('User not found', 404)
+
+  const payload = { userId: user._id.toString(), email: user.email, role: user.role }
+  const accessToken = signAccessToken(payload)
+  const refreshToken = signRefreshToken(payload)
+  user.refreshToken = refreshToken
+  await user.save()
+
+  return { user, accessToken, refreshToken }
 }

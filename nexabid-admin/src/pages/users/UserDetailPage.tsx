@@ -49,7 +49,9 @@ export default function UserDetailPage() {
   const [stats, setStats]       = useState<{ totalOrders: number; totalBids: number; totalPayments: number } | null>(null)
   const [loading, setLoading]   = useState(true)
   const [toggling, setToggling] = useState(false)
-  const [activeTab, setActiveTab] = useState<'orders' | 'bids' | 'payments'>('orders')
+  const [activeTab, setActiveTab] = useState<'orders' | 'bids' | 'payments' | 'kyc'>('orders')
+  const [kycData, setKycData] = useState<{ kycStatus: string; kycDocuments: any[]; kycRejectionReason?: string } | null>(null)
+  const [kycAction, setKycAction] = useState(false)
 
   const load = () => {
     api.get(`/admin/users/${id}`)
@@ -92,7 +94,29 @@ export default function UserDetailPage() {
     { id: 'orders' as const,   label: 'Orders',   count: orders.length },
     ...(user.role === 'manufacturer' ? [{ id: 'bids' as const, label: 'Bids', count: bids.length }] : []),
     { id: 'payments' as const, label: 'Payments', count: payments.length },
+    ...(user.role === 'manufacturer' ? [{ id: 'kyc' as const, label: 'KYC', count: 0 }] : []),
   ]
+
+  const loadKYC = async () => {
+    if (user.role !== 'manufacturer' || kycData) return
+    try {
+      // Admin fetches KYC via user detail — embedded in user object
+      setKycData({
+        kycStatus: (user as any).kycStatus || 'none',
+        kycDocuments: (user as any).kycDocuments || [],
+        kycRejectionReason: (user as any).kycRejectionReason,
+      })
+    } catch { /* silent */ }
+  }
+
+  const handleKYCAction = async (status: 'approved' | 'rejected', reason?: string) => {
+    setKycAction(true)
+    try {
+      await api.patch(`/admin/users/${id}/kyc`, { status, reason })
+      setKycData(prev => prev ? { ...prev, kycStatus: status, kycRejectionReason: reason } : prev)
+    } catch { /* silent */ }
+    finally { setKycAction(false) }
+  }
 
   return (
     <div className="space-y-6 animate-fade-up max-w-4xl">
@@ -175,7 +199,7 @@ export default function UserDetailPage() {
       {/* History tabs */}
       <div className="flex items-center gap-1 bg-white border border-gray-100 rounded-xl p-1 w-fit">
         {TABS.map(t => (
-          <button key={t.id} onClick={() => setActiveTab(t.id)}
+          <button key={t.id} onClick={() => { setActiveTab(t.id as any); if (t.id === 'kyc') loadKYC() }}
             className={cn('px-4 py-1.5 rounded-lg text-sm font-medium transition-all',
               activeTab === t.id ? 'bg-[#0A0A0A] text-white' : 'text-gray-500 hover:text-gray-800'
             )}>
@@ -256,6 +280,74 @@ export default function UserDetailPage() {
                 <p className="text-xs text-gray-400">{fmtDate(p.createdAt)}</p>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* KYC Tab — manufacturers only */}
+      {activeTab === 'kyc' && (
+        <div className="space-y-4">
+          {/* KYC Status card */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-semibold text-[#0A0A0A]">KYC Status</p>
+                <span className={cn('inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full mt-1',
+                  kycData?.kycStatus === 'approved' ? 'bg-green-50 text-green-700' :
+                  kycData?.kycStatus === 'pending'  ? 'bg-orange-50 text-orange-600' :
+                  kycData?.kycStatus === 'rejected' ? 'bg-red-50 text-red-600' :
+                  'bg-gray-50 text-gray-500'
+                )}>
+                  {kycData?.kycStatus || 'none'}
+                </span>
+              </div>
+              {kycData?.kycStatus === 'pending' && (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleKYCAction('approved')}
+                    disabled={kycAction}
+                    className="px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50">
+                    Approve KYC
+                  </button>
+                  <button
+                    onClick={() => {
+                      const reason = window.prompt('Rejection reason (optional):') || undefined
+                      handleKYCAction('rejected', reason)
+                    }}
+                    disabled={kycAction}
+                    className="px-4 py-2 bg-red-50 text-red-600 text-xs font-bold rounded-xl hover:bg-red-100 transition-colors disabled:opacity-50 border border-red-200">
+                    Reject
+                  </button>
+                </div>
+              )}
+            </div>
+            {kycData?.kycRejectionReason && (
+              <p className="text-xs text-red-500 bg-red-50 px-3 py-2 rounded-lg">
+                Rejection reason: {kycData.kycRejectionReason}
+              </p>
+            )}
+          </div>
+
+          {/* Documents list */}
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-50">
+              <p className="text-sm font-semibold text-[#0A0A0A]">Submitted Documents</p>
+            </div>
+            {!kycData?.kycDocuments?.length ? (
+              <div className="py-12 text-center text-gray-400 text-sm">No documents submitted yet</div>
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {kycData.kycDocuments.map((doc: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between px-5 py-4">
+                    <div>
+                      <p className="text-sm font-medium text-[#0A0A0A] capitalize">{doc.label}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{doc.type} · {new Date(doc.uploadedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    </div>
+                    <span className="text-xs font-semibold text-green-600 bg-green-50 px-2.5 py-1 rounded-full">Submitted</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

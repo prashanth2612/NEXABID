@@ -464,6 +464,22 @@ Return ONLY JSON (no markdown):
               <p className="text-sm text-red-700">{myBid.clientNote}</p>
             </div>
           )}
+          {myBid.status === 'pending' && (
+            <button
+              onClick={async () => {
+                if (!window.confirm('Withdraw your bid? This cannot be undone.')) return
+                try {
+                  await api.delete(`/bids/${myBid.id}/withdraw`)
+                  await load()
+                } catch (e: unknown) {
+                  const err = e as { response?: { data?: { message?: string } } }
+                  alert(err.response?.data?.message || 'Failed to withdraw bid')
+                }
+              }}
+              className="mt-3 text-xs text-red-500 hover:text-red-700 font-medium transition-colors underline">
+              Withdraw this bid
+            </button>
+          )}
         </div>
       ) : ['posted', 'bidding'].includes(order.status) && !order.isFixedPrice ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-6">

@@ -51,4 +51,10 @@ router.post('/:id/reject',
   bidController.rejectBid
 )
 
+// Manufacturer withdraws their own pending bid
+router.delete('/:id/withdraw',
+  authorizeRoles('manufacturer'),
+  bidController.withdrawBid
+)
+
 export default router

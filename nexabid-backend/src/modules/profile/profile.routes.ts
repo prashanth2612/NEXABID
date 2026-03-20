@@ -34,6 +34,9 @@ router.get('/',                                                     profileContr
 router.put('/',  validate(updateProfileSchema),                     profileController.updateProfile)
 router.post('/change-password', validate(changePasswordSchema),     profileController.changePassword)
 router.get('/stats',                                                profileController.getProfileStats)
+router.post('/avatar',                                              profileController.uploadAvatar)
+router.post('/kyc',                                                 profileController.uploadKYCDocument)
+router.get('/kyc',                                                  profileController.getKYCStatus)
 
 export default router
 

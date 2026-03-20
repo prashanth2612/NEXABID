@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Package, PlusCircle, MessageSquare,
-  CreditCard, User, Settings, LogOut, ChevronRight,
+  CreditCard, User, Settings, LogOut, ChevronRight, Bell,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -20,6 +20,7 @@ const navItems = [
     group: 'Activity',
     items: [
       { label: 'Messages',     icon: MessageSquare,   path: '/chat' },
+      { label: 'Notifications', icon: Bell,            path: '/notifications' },
       { label: 'Payments',     icon: CreditCard,      path: '/payments' },
     ],
   },
@@ -97,10 +98,11 @@ export default function Sidebar() {
       {/* User + Logout */}
       <div className="px-3 pb-4 border-t border-white/[0.06] pt-3">
         <div className="flex items-center gap-2.5 px-2.5 py-2 mb-1">
-          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-semibold">
-              {user?.fullName?.charAt(0).toUpperCase()}
-            </span>
+          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {user?.avatar
+              ? <img src={user.avatar} alt={user.fullName} className="w-full h-full object-cover" />
+              : <span className="text-white text-xs font-semibold">{user?.fullName?.charAt(0).toUpperCase()}</span>
+            }
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-xs font-medium truncate">{user?.fullName}</p>

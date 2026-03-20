@@ -14,6 +14,8 @@ import ProtectedRoute from '@/components/ui/ProtectedRoute'
 
 import EarningsPage from '@/pages/earnings/EarningsPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
+import NotificationsPage from '@/pages/notifications/NotificationsPage'
+import KYCPage from '@/pages/kyc/KYCPage'
 const Placeholder = ({ title }: { title: string }) => (
   <div className="flex items-center justify-center h-64">
     <div className="text-center">
@@ -43,6 +45,8 @@ export default function App() {
             <Route path="/chat/:orderId" element={<ChatPage />} />
             <Route path="/earnings" element={<EarningsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/kyc" element={<KYCPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

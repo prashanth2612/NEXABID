@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Building2, FileText } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Building2, FileText, Mail, Shield } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
 import api from '@/lib/api'
@@ -81,7 +81,13 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showOptional, setShowOptional] = useState(false)
-
+  const [verifyStep, setVerifyStep] = useState(false)
+  const [pendingEmail, setPendingEmail] = useState('')
+  const [pendingUser, setPendingUser] = useState<{ user: any; accessToken: string } | null>(null)
+  const [otp, setOtp] = useState('')
+  const [verifyLoading, setVerifyLoading] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
+  const [resendCooldown, setResendCooldown] = useState(0)
   const {
     register,
     handleSubmit,
@@ -103,14 +109,122 @@ export default function RegisterPage() {
         role: 'client',
       })
       const { user, accessToken } = response.data.data
-      login(user, accessToken)
-      navigate('/dashboard')
+      setPendingUser({ user, accessToken })
+      setPendingEmail(data.email)
+      setVerifyStep(true)
+      startResendCooldown()
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } }
       setSubmitError(error.response?.data?.message || 'Failed to create account. Please try again.')
     } finally {
       setLoading(false)
     }
+  }
+
+  const startResendCooldown = () => {
+    setResendCooldown(60)
+    const interval = setInterval(() => {
+      setResendCooldown(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0 }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const handleVerify = async () => {
+    if (otp.length !== 6) { setVerifyError('Enter the 6-digit code'); return }
+    setVerifyLoading(true)
+    setVerifyError('')
+    try {
+      const res = await api.post('/auth/verify-email', { email: pendingEmail, otp })
+      const { user, accessToken } = res.data.data
+      login(user, accessToken)
+      navigate('/dashboard')
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } }
+      setVerifyError(e.response?.data?.message || 'Invalid code. Try again.')
+    } finally {
+      setVerifyLoading(false)
+    }
+  }
+
+  const handleResend = async () => {
+    if (resendCooldown > 0) return
+    try {
+      await api.post('/auth/send-verification', { email: pendingEmail })
+      startResendCooldown()
+    } catch { /* silent */ }
+  }
+  // ── Email Verification Screen ──────────────────────────────────
+  if (verifyStep) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Mail size={28} className="text-blue-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-[#0A0A0A] mb-2">Verify your email</h2>
+            <p className="text-gray-500 text-sm">
+              We sent a 6-digit code to <span className="font-semibold text-[#0A0A0A]">{pendingEmail}</span>
+            </p>
+          </div>
+
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm space-y-5">
+            {/* OTP Input */}
+            <div>
+              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                Verification Code
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                className="w-full text-center text-3xl font-bold tracking-[0.5em] py-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black/30 transition-all"
+              />
+            </div>
+
+            {verifyError && (
+              <p className="text-sm text-red-500 text-center">{verifyError}</p>
+            )}
+
+            <button
+              onClick={handleVerify}
+              disabled={verifyLoading || otp.length !== 6}
+              className="w-full py-3.5 bg-[#0A0A0A] text-white font-semibold rounded-xl hover:bg-[#1a1a1a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {verifyLoading ? <Loader2 size={16} className="animate-spin" /> : <Shield size={16} />}
+              {verifyLoading ? 'Verifying...' : 'Verify & Continue'}
+            </button>
+
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                Didn't receive the code?{' '}
+                <button
+                  onClick={handleResend}
+                  disabled={resendCooldown > 0}
+                  className="font-semibold text-[#0A0A0A] hover:underline disabled:text-gray-400 disabled:no-underline"
+                >
+                  {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
+                </button>
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100 text-center">
+              <button
+                onClick={() => { setVerifyStep(false); setOtp(''); setVerifyError('') }}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                ← Back to registration
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

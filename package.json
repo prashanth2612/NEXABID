@@ -25,12 +25,6 @@
     "lint:all": "npm run lint --workspaces --if-present"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
-    "@types/cookie-parser": "^1.4.10",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/morgan": "^1.9.10",
-    "@types/nodemailer": "^7.0.11",
     "concurrently": "^8.2.2"
   },
   "engines": {

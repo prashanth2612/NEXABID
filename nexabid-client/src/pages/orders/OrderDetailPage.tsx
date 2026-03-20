@@ -92,6 +92,19 @@ export default function OrderDetailPage() {
     }
   }
 
+  const handleCancelOrder = async () => {
+    if (!order) return
+    if (!window.confirm('Cancel this order? This cannot be undone.')) return
+    setActionLoading('cancel')
+    try {
+      await api.delete(`/orders/${id}`)
+      navigate('/orders')
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } }
+      alert(err.response?.data?.message || 'Failed to cancel order')
+    } finally { setActionLoading(null) }
+  }
+
   const handleSendOtp = async () => {
     setOtpLoading(true)
     setOtpError(null)
@@ -229,11 +242,19 @@ Respond ONLY with JSON (no markdown):
 
   return (
     <div className="max-w-4xl mx-auto space-y-5 animate-fade-up">
-      <button onClick={() => navigate('/orders')}
-        className="flex items-center gap-2 text-gray-500 hover:text-black text-sm transition-colors"
-      >
-        <ArrowLeft size={15} /> Back to orders
-      </button>
+      <div className="flex items-center justify-between">
+        <button onClick={() => navigate('/orders')}
+          className="flex items-center gap-2 text-gray-500 hover:text-black text-sm transition-colors"
+        >
+          <ArrowLeft size={15} /> Back to orders
+        </button>
+        {['posted', 'bidding'].includes(order.status) && (
+          <button onClick={handleCancelOrder}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors">
+            Cancel Order
+          </button>
+        )}
+      </div>
 
       {/* Order header */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6">
@@ -257,6 +278,13 @@ Respond ONLY with JSON (no markdown):
               >
                 <MessageSquare size={13} /> Chat
               </Link>
+            )}
+            {['posted','bidding'].includes(order.status) && (
+              <button onClick={handleCancelOrder} disabled={actionLoading === 'cancel'}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-medium transition-colors disabled:opacity-50">
+                {actionLoading === 'cancel' ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={13} />}
+                Cancel Order
+              </button>
             )}
           </div>
         </div>

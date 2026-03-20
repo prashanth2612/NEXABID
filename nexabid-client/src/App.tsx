@@ -11,6 +11,7 @@ import ProfilePage from '@/pages/profile/ProfilePage'
 import PaymentsPage from '@/pages/payments/PaymentsPage'
 import ChatPage from '@/pages/chat/ChatPage'
 import ProtectedRoute from '@/components/ui/ProtectedRoute'
+import NotificationsPage from '@/pages/notifications/NotificationsPage'
 
 import SettingsPage from '@/pages/settings/SettingsPage'
 
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/payments" element={<PaymentsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 

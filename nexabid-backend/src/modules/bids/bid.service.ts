@@ -159,3 +159,19 @@ export const getMyBids = async (manufacturerId: string) => {
     .sort({ createdAt: -1 })
   return bids
 }
+
+// ─── Withdraw Bid (manufacturer only, only if still pending) ─────
+export const withdrawBid = async (bidId: string, manufacturerId: string) => {
+  const bid = await Bid.findById(bidId)
+  if (!bid) throw createError('Bid not found', 404)
+  if (bid.manufacturerId.toString() !== manufacturerId) throw createError('Access denied', 403)
+  if (bid.status !== 'pending') throw createError('Only pending bids can be withdrawn', 400)
+
+  bid.status = 'withdrawn' as any
+  await bid.save()
+
+  // Decrement order bid count
+  await Order.findByIdAndUpdate(bid.orderId, { $inc: { totalBids: -1 } })
+
+  return bid
+}

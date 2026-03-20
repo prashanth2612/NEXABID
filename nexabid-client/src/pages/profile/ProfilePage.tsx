@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { cn } from '@/lib/utils'
+import AvatarUpload from '@/components/AvatarUpload'
 
 interface ProfileData {
   fullName: string
@@ -22,6 +23,7 @@ interface ProfileData {
   isVerified: boolean
   rating: number
   createdAt: string
+  avatar?: string
 }
 
 interface Stats {
@@ -164,10 +166,15 @@ export default function ProfilePage() {
         </div>
 
         {/* Avatar overlap */}
-        <div className="px-6 -mt-10 mb-4">
-          <div className="w-20 h-20 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center">
-            <span className="text-2xl font-bold text-[#0A0A0A]">{initials}</span>
-          </div>
+        <div className="px-6 -mt-12 mb-4">
+          <AvatarUpload
+            currentAvatar={profile?.avatar}
+            name={user?.fullName}
+            size={88}
+            onUpdate={(newAvatar) => {
+              setProfile((p: ProfileData | null) => p ? { ...p, avatar: newAvatar } : p)
+            }}
+          />
         </div>
 
         {saveMsg && (

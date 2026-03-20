@@ -198,4 +198,21 @@ router.post('/seed', async (req: any, res: Response, next: NextFunction): Promis
   } catch (e) { next(e) }
 })
 
+// ── PATCH /admin/users/:id/kyc — approve or reject KYC ──────────
+router.patch('/users/:id/kyc', authenticate, authorizeRoles('admin'), async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { status, reason } = req.body
+    if (!['approved', 'rejected'].includes(status)) {
+      res.status(400).json({ success: false, message: 'status must be approved or rejected' }); return
+    }
+    const User = (await import('../auth/auth.model')).default
+    const user = await User.findByIdAndUpdate(req.params.id, {
+      kycStatus: status,
+      ...(status === 'rejected' && reason ? { kycRejectionReason: reason } : {}),
+    }, { new: true }).select('fullName email kycStatus kycRejectionReason')
+    if (!user) { res.status(404).json({ success: false, message: 'User not found' }); return }
+    res.json({ success: true, data: { user }, message: `KYC ${status}` })
+  } catch (e) { next(e) }
+})
+
 export default router

@@ -51,3 +51,10 @@ export const getMyBids = async (req: AuthRequest, res: Response, next: NextFunct
     sendSuccess(res, { bids }, 'Bids fetched successfully')
   } catch (e) { next(e) }
 }
+
+export const withdrawBid = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const bid = await (await import('./bid.service')).withdrawBid(req.params.id, req.user!.userId)
+    sendSuccess(res, { bid }, 'Bid withdrawn successfully')
+  } catch (e) { next(e) }
+}

@@ -19,6 +19,8 @@ router.post('/refresh-token', authController.refreshTokens)
 router.post('/forgot-password', validate(forgotPasswordSchema), authController.forgotPassword)
 router.post('/verify-otp', validate(verifyOTPSchema), authController.verifyOTP)
 router.post('/reset-password', validate(resetPasswordSchema), authController.resetPassword)
+router.post('/send-verification', authController.sendEmailVerification)
+router.post('/verify-email', authController.verifyEmailOTP)
 
 // Protected routes
 router.get('/me', authenticate, authController.getMe)

@@ -159,3 +159,18 @@ export const sendWelcomeEmail = async (email: string, name: string, role: string
     `,
   })
 }
+
+export const sendVerificationEmail = async (email: string, name: string, otp: string): Promise<void> => {
+  await sendEmail({
+    to: email,
+    subject: 'Verify your NexaBid account',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#f9fafb;border-radius:12px;">
+        <h2 style="color:#0A0A0A;margin:0 0 8px">Welcome to NexaBid, ${name}!</h2>
+        <p style="color:#6b7280;margin:0 0 24px">Please verify your email address to activate your account.</p>
+        <div style="background:#0A0A0A;color:white;font-size:32px;font-weight:bold;letter-spacing:12px;text-align:center;padding:24px;border-radius:8px;margin:0 0 24px">${otp}</div>
+        <p style="color:#6b7280;font-size:13px;margin:0">This code expires in 10 minutes. If you didn't sign up, ignore this email.</p>
+      </div>
+    `,
+  })
+}
