@@ -52,7 +52,7 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
-    await sleep(800)
+    await new Promise(r => setTimeout(r, 800))
     // Google OAuth — connect to backend later
     alert('Google OAuth will be connected to backend in Phase 2.')
   }

@@ -262,7 +262,7 @@ Respond ONLY with JSON (no markdown):
                   clientEmail: (order as any).clientId?.email || '',
                   manufacturerName: (order as any).acceptedManufacturerId?.fullName || acceptedBid?.manufacturerId?.fullName || 'Manufacturer',
                   manufacturerEmail: (order as any).acceptedManufacturerId?.email || acceptedBid?.manufacturerId?.email || '',
-                  amount: acceptedBid?.proposedPrice || order.budget,
+                  amount: (acceptedBid as any)?.proposedPrice || (order as any).budget,
                   completedAt: order.updatedAt,
                   createdAt: order.createdAt,
                 })

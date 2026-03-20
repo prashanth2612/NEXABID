@@ -17,11 +17,13 @@ export function StatCardSkeleton() {
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-100">
       <div className="flex items-start justify-between mb-3">
-        <Skeleton className="w-9 h-9 rounded-xl" />
+        <div className="w-9 h-9 rounded-xl bg-gray-100 animate-pulse" />
         <div className="flex items-end gap-0.5 h-8">
           {[...Array(8)].map((_, i) => (
-            <Skeleton key={i} className="w-3 rounded-sm" style={{ height: `${30 + Math.random() * 70}%` } as any} />
+            <div key={i} className="w-3 rounded-sm bg-gray-100 animate-pulse"
+              style={{ height: `${30 + Math.random() * 70}%` }} />
           ))}
+        </div>
         </div>
       </div>
       <Skeleton className="h-7 w-20 mb-1" />

@@ -25,7 +25,8 @@ export const connectDB = async (): Promise<void> => {
     })
   } catch (error) {
     logger.error('❌ MongoDB connection failed:', error)
-    process.exit(1)
+    logger.warn('⚠️  Retrying MongoDB connection in 5 seconds...')
+    setTimeout(() => connectDB(), 5000)
   }
 }
 

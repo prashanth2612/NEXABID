@@ -62,18 +62,20 @@ app.use(notFound)
 app.use(errorHandler)
 
 const startServer = async () => {
+  // Start HTTP server first so Render detects the open port immediately
+  httpServer.listen(env.PORT, () => {
+    logger.info(`🚀 NexaBid Backend running on http://localhost:${env.PORT}`)
+    logger.info(`🔌 Socket.io ready`)
+    logger.info(`📌 Environment: ${env.NODE_ENV}`)
+  })
+
+  // Then connect to DB and Redis (non-blocking for server start)
   try {
     await connectDB()
     await connectRedis()
     initSocket(httpServer)
-    httpServer.listen(env.PORT, () => {
-      logger.info(`🚀 NexaBid Backend running on http://localhost:${env.PORT}`)
-      logger.info(`🔌 Socket.io ready`)
-      logger.info(`📌 Environment: ${env.NODE_ENV}`)
-    })
   } catch (error) {
-    logger.error('Failed to start server:', error)
-    process.exit(1)
+    logger.error('Startup error (server still running):', error)
   }
 }
 

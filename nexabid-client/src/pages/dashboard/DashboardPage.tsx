@@ -144,10 +144,10 @@ export default function DashboardPage() {
   }, [])
 
   // Fake sparkline data based on stats
-  const sparkOrders  = [1, 2, 1, 3, stats.totalOrders - 4, stats.totalOrders - 2, stats.totalOrders].map(Math.max.bind(null, 0))
+  const sparkOrders  = [1, 2, 1, 3, stats.totalOrders - 4, stats.totalOrders - 2, stats.totalOrders].map((v: number) => Math.max(0, v))
   const sparkEscrow  = [0, 1, 2, 1, 3, 2, stats.inEscrow > 0 ? 4 : 0]
-  const sparkDone    = [0, 1, 1, 2, stats.completedOrders - 2, stats.completedOrders - 1, stats.completedOrders].map(Math.max.bind(null, 0))
-  const sparkActive  = [1, 2, 1, 2, 3, 2, stats.activeOrders].map(Math.max.bind(null, 0))
+  const sparkDone    = [0, 1, 1, 2, stats.completedOrders - 2, stats.completedOrders - 1, stats.completedOrders].map((v: number) => Math.max(0, v))
+  const sparkActive  = [1, 2, 1, 2, 3, 2, stats.activeOrders].map((v: number) => Math.max(0, v))
 
   const statCards = [
     { label: 'Total Orders',   value: String(stats.totalOrders),       sub: `${stats.activeOrders} active`,    icon: Package,    color: 'text-blue-600',   bg: 'bg-blue-50',    spark: sparkOrders,  sparkColor: '#2563eb' },

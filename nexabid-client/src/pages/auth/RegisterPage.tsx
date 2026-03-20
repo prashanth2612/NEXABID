@@ -7,7 +7,6 @@ import { Eye, EyeOff, ArrowRight, Loader2, CheckCircle2, Building2, FileText, Ma
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
 import api from '@/lib/api'
-import { MANUFACTURING_CATEGORIES } from '@/types/auth'
 import type { RegisterFormData } from '@/types/auth'
 
 const registerSchema = z
@@ -82,8 +81,6 @@ export default function RegisterPage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showOptional, setShowOptional] = useState(false)
   const [verifyStep, setVerifyStep] = useState(false)
-  const [pendingEmail, setPendingEmail] = useState('')
-  const [pendingUser, setPendingUser] = useState<{ user: any; accessToken: string } | null>(null)
   const [otp, setOtp] = useState('')
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [verifyError, setVerifyError] = useState('')

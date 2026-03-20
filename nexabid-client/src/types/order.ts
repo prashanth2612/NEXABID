@@ -31,6 +31,7 @@ export interface Order {
   unit: string
   budgetMin: number
   budgetMax: number
+  budget?: number  // alias used in some pages
   isFixedPrice: boolean
   fixedPrice?: number
   deliveryDate: string
