@@ -48,7 +48,7 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many auth attempts, please try again later.' },
 })
 
-app.use(limiter)
+app.use(limiter as any)
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
@@ -67,7 +67,7 @@ app.get('/health', (_req: any, res: any) => {
   })
 })
 
-app.use('/api/auth', authLimiter, authRoutes)
+app.use('/api/auth', authLimiter as any, authRoutes)
 app.use('/api/orders', orderRoutes)
 app.use('/api/bids', bidRoutes)
 app.use('/api/profile', profileRoutes)
