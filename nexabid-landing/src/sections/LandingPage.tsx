@@ -375,13 +375,13 @@ function HeroCarousel({ navigate: _navigate }: { navigate: (p: Page) => void }) 
             </p>
             {/* Buttons need pointer-events back */}
             <div className="flex flex-wrap gap-3" style={{ pointerEvents: 'all' }}>
-              <a href="http://localhost:5173/auth/register" target="_blank" rel="noopener noreferrer"
+              <a href="https://nexabid-nexabid-client.vercel.app" target="_blank" rel="noopener noreferrer"
                 className="px-6 py-3 bg-[#0064e0] text-white font-bold rounded-full hover:bg-[#1877f2] transition-all shadow-lg"
                 style={{ fontSize: 14, zIndex: 10, position: 'relative' }}
                 onPointerDown={e => e.stopPropagation()}>
                 Post an Order
               </a>
-              <a href="http://localhost:5174/auth/register" target="_blank" rel="noopener noreferrer"
+              <a href="https://nexabid-nexabid-manufacturer.vercel.app" target="_blank" rel="noopener noreferrer"
                 className="px-6 py-3 text-white font-semibold rounded-full border-2 border-white/50 hover:bg-white/15 transition-all"
                 style={{ fontSize: 14, zIndex: 10, position: 'relative' }}
                 onPointerDown={e => e.stopPropagation()}>
@@ -656,7 +656,7 @@ export default function LandingPage({ navigate }: Props) {
                 desc: 'Manage users, resolve disputes, track payments and platform health.',
                 img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=95&auto=format&fit=crop',
                 cta: 'Admin Panel',
-                href: 'http://localhost:5175',
+                href: 'https://nexabid-nexabid-landing.vercel.app/',
                 btnColor: '#6e40c9',
               },
             ].map((portal, i) => (
