@@ -1,12 +1,14 @@
 import axios from 'axios'
 import { useAuthStore } from '@/store/authStore'
 
+// VITE_API_URL should be the backend base URL WITHOUT /api
+// e.g. https://nexabid-backend.onrender.com
 const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:3000') + '/api'
 
 const api = axios.create({
   baseURL: BASE,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 10000,
+  timeout: 15000,
 })
 
 // Attach token to every request
@@ -39,7 +41,6 @@ const tryRefresh = async (): Promise<string | null> => {
   return refreshPromise
 }
 
-// Handle errors — auto token refresh on 401, retry on 429
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -53,7 +54,6 @@ api.interceptors.response.use(
         cfg.headers.Authorization = `Bearer ${newToken}`
         return api(cfg)
       }
-      // tryRefresh already redirected to login
       return Promise.reject(error)
     }
 

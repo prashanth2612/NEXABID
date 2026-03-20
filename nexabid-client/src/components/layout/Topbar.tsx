@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Bell, CheckCheck, X, Moon, Sun } from "lucide-react"
+import { Bell, Search, CheckCheck, X, Moon, Sun } from "lucide-react"
 import { useAuthStore } from '@/store/authStore'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import { getSocket, disconnectSocket } from '@/lib/socket'

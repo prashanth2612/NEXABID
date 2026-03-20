@@ -27,8 +27,25 @@ const app = express()
 const httpServer = http.createServer(app)
 
 app.use(helmet())
+const allowedOrigins = [
+  env.CLIENT_URL,
+  env.MANUFACTURER_URL,
+  env.ADMIN_URL,
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+].filter(Boolean)
+
 app.use(cors({
-  origin: [env.CLIENT_URL, env.MANUFACTURER_URL, env.ADMIN_URL],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes(origin) || env.NODE_ENV === 'development') {
+      return callback(null, true)
+    }
+    return callback(new Error('Not allowed by CORS'))
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

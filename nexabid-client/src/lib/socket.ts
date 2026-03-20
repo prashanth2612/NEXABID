@@ -12,7 +12,7 @@ export const getSocket = (token: string): Socket => {
 
   if (!socket) {
     currentToken = token
-    socket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000', {
+    socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3000', {
       auth: { token },
       transports: ['websocket', 'polling'],
       autoConnect: true,
