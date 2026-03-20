@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'))
 
-app.get('/health', (_req, res) => {
+app.get('/api/health', (_req, res) => {
   const mongoose = require('mongoose')
   const dbState = ['disconnected', 'connected', 'connecting', 'disconnecting']
   res.json({
