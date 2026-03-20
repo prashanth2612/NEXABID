@@ -49,7 +49,7 @@ export default function ProfilePage() {
   const [pwLoading, setPwLoading] = useState(false)
   const [pwMsg, setPwMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileData>()
+  const { register, handleSubmit, reset, formState: { errors: _errors } } = useForm<ProfileData>()
   const pwForm = useForm<{ currentPassword: string; newPassword: string; confirmPassword: string }>()
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function ProfilePage() {
     }
   }
 
-  const initials = profile?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?'
+  const _initials = profile?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '?'
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 animate-fade-up">

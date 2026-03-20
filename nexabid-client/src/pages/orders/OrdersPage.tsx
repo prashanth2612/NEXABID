@@ -61,8 +61,8 @@ export default function OrdersPage() {
     const tabStatuses = TAB_STATUSES[activeTab]
     if (tabStatuses.length > 0 && !tabStatuses.includes(o.status)) return false
     if (search && !o.title.toLowerCase().includes(search.toLowerCase()) && !o.orderNumber?.toLowerCase().includes(search.toLowerCase())) return false
-    if (minAmount && (o as any).budget < Number(minAmount)) return false
-    if (maxAmount && (o as any).budget > Number(maxAmount)) return false
+    if (minAmount && (o.budgetMin || 0) < Number(minAmount)) return false
+    if (maxAmount && (o.budgetMin || 0) > Number(maxAmount)) return false
     if (dateFrom && new Date(o.createdAt) < new Date(dateFrom)) return false
     if (dateTo && new Date(o.createdAt) > new Date(dateTo + 'T23:59:59')) return false
     return true
