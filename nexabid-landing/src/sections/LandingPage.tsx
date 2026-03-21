@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 type Page = 'home' | 'about' | 'careers'
 interface Props { navigate: (p: Page) => void }
 
-/* ─────────── DATA ─────────── */
 const CATEGORIES = [
   { name:'Textiles & Garments',    img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=95&auto=format&fit=crop',    count:'340+' },
   { name:'Electronics & PCB',      img:'https://images.unsplash.com/photo-1518770660439-4636190af475?w=700&q=95&auto=format&fit=crop',    count:'210+' },
@@ -28,7 +27,7 @@ const CATEGORIES = [
 const HOW = [
   { step:'01', title:'Post your order',       desc:'Describe your requirement, set quantity, delivery timeline and budget. Attach spec sheets, reference images or documents.', img:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1000&q=95&auto=format&fit=crop' },
   { step:'02', title:'Manufacturers compete', desc:'Verified manufacturers submit bids. Our AI scores each on price, delivery time and win probability in real time.',          img:'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1000&q=95&auto=format&fit=crop' },
-  { step:'03', title:'Pay into escrow',       desc:'Accept the best bid. Pay securely via Razorpay — funds are locked until you confirm delivery. Zero payment risk.',         img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1000&q=95&auto=format&fit=crop' },
+  { step:'03', title:'Pay into escrow',       desc:'Accept the best bid. Pay securely via Razorpay — funds are locked until you confirm delivery. Zero payment risk.',         img:'https://cdn-dgioi.nitrocdn.com/knjhITnAQZlAdAXdTgiPIMYmMsPoclew/assets/images/optimized/rev-f351688/royallp.com/wp-content/uploads/2025/04/How-Escrow-account-Works.jpg?w=1000&q=95&auto=format&fit=crop' },
   { step:'04', title:'Confirm & release',     desc:'Manufacturer ships with live tracking. You confirm delivery via OTP — funds are released instantly.',                      img:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1000&q=95&auto=format&fit=crop' },
 ]
 
@@ -60,7 +59,6 @@ const HERO_SLIDES = [
   { img:'https://images.unsplash.com/photo-1563906267088-b029e7101114?w=1800&q=95&auto=format&fit=crop', badge:'AI Bid Scoring',        headline:['AI That Works','Harder Than','Your Vendor.'],      sub:'Our ML engine scores every bid on price, reliability, and delivery time — live.',  tag:'98.4% Accuracy' },
 ]
 
-/* ─────────── CSS ─────────── */
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 html{scroll-behavior:smooth}
@@ -129,10 +127,9 @@ html{scroll-behavior:smooth}
 .live-d{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:lRing 2.5s infinite}
 .sec-line{height:1px;background:linear-gradient(90deg,transparent,#e4e8f0,transparent);margin:0}
 
-/* Mobile Phone Mockup */
 .phone-mockup{position:relative;width:clamp(300px,85vw,400px);aspect-ratio:9/19.5;background:#fff;border-radius:48px;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 12px #000,0 0 0 14px #2d2d2d;overflow:hidden;border:8px solid #000}
 .phone-mockup::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:100px;height:28px;background:#000;border-radius:0 0 20px 20px;z-index:100}
-.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#fff;padding-top:50px;padding-bottom:80px}
+.phone-screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#fff;padding-top:50px;padding-bottom:80px;scroll-behavior:smooth}
 .phone-screen::-webkit-scrollbar{width:3px}
 .phone-screen::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
 .phone-header{padding:16px 20px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -173,7 +170,6 @@ html{scroll-behavior:smooth}
 @media(max-width:768px){.mobile-app-section{padding:60px 0}.mobile-app-content h2{font-size:clamp(24px,4vw,32px)}.phone-mockup{width:clamp(260px,78vw,340px)}}
 `
 
-/* ─────────── 3D Industrial Widget ─────────── */
 function IndustrialWidget() {
   return (
     <div style={{ position:'relative', width:420, height:420, flexShrink:0 }}>
@@ -196,7 +192,6 @@ function IndustrialWidget() {
           {Array.from({length:8},(_,i)=><line key={`h${i}`} x1="0" y1={i*60} x2="420" y2={i*60} stroke="#0064e0" strokeWidth="0.8"/>)}
           {Array.from({length:8},(_,i)=><line key={`v${i}`} x1={i*60} y1="0" x2={i*60} y2="420" stroke="#0064e0" strokeWidth="0.8"/>)}
         </g>
-        {/* Big gear */}
         <g filter="url(#shadow)">
           <g style={{animation:'spin 18s linear infinite',transformOrigin:'248px 230px'}}>
             <circle cx="248" cy="230" r="98" fill="url(#gBig)" stroke="#0064e0" strokeWidth="4"/>
@@ -208,7 +203,6 @@ function IndustrialWidget() {
             {Array.from({length:16},(_,i)=>{const angle=(i/16)*360,rad=angle*Math.PI/180,ox=248+Math.cos(rad)*98,oy=230+Math.sin(rad)*98;return <rect key={i} x={ox-9} y={oy-9} width="18" height="18" rx="3" fill="#0064e0" transform={`rotate(${angle+45},${ox},${oy})`} filter="url(#glow)"/>})}
           </g>
         </g>
-        {/* Small gear */}
         <g filter="url(#shadow)">
           <g style={{animation:'spinr 12s linear infinite',transformOrigin:'138px 152px'}}>
             <circle cx="138" cy="152" r="62" fill="url(#gSmall)" stroke="#0064e0" strokeWidth="3"/>
@@ -219,7 +213,6 @@ function IndustrialWidget() {
             {Array.from({length:11},(_,i)=>{const angle=(i/11)*360,rad=angle*Math.PI/180,ox=138+Math.cos(rad)*62,oy=152+Math.sin(rad)*62;return <rect key={i} x={ox-7} y={oy-7} width="14" height="14" rx="2.5" fill="#0064e0" transform={`rotate(${angle+45},${ox},${oy})`} filter="url(#glow)"/>})}
           </g>
         </g>
-        {/* Mini gear */}
         <g filter="url(#shadow)">
           <g style={{animation:'spin 8s linear infinite',transformOrigin:'110px 330px'}}>
             <circle cx="110" cy="330" r="40" fill="url(#gMini)" stroke="#0064e0" strokeWidth="2.5"/>
@@ -229,7 +222,6 @@ function IndustrialWidget() {
           </g>
         </g>
         <line x1="185" y1="181" x2="206" y2="196" stroke="#0064e0" strokeWidth="6" strokeLinecap="round" opacity="0.3"/>
-        {/* Piston */}
         <g style={{animation:'piston 2.2s ease-in-out infinite'}}>
           <rect x="325" y="140" width="16" height="72" rx="7" fill="#0a1628" stroke="#0064e0" strokeWidth="2.5"/>
           <circle cx="333" cy="143" r="10" fill="#0a1628" stroke="#0064e0" strokeWidth="2.5"/>
@@ -237,10 +229,8 @@ function IndustrialWidget() {
         </g>
         <rect x="318" y="120" width="30" height="14" rx="4" fill="#0a1628" stroke="#0064e0" strokeWidth="2"/>
         <rect x="320" y="212" width="26" height="10" rx="3" fill="#0064e0" opacity="0.4"/>
-        {/* Orbiting nodes */}
         <g style={{transformOrigin:'248px 230px'}}><g style={{animation:'orbit 6s linear infinite',transformOrigin:'248px 230px'}}><circle cx="248" cy="230" r="6" fill="#0099ff" filter="url(#glowStrong)" style={{animation:'blink 1.4s ease-in-out infinite'}}/><text x="256" y="226" fontSize="9" fill="#0099ff" fontWeight="700" opacity="0.9">LIVE</text></g></g>
         <g style={{transformOrigin:'248px 230px'}}><g style={{animation:'orbit2 9s linear infinite',transformOrigin:'248px 230px'}}><circle cx="248" cy="230" r="5" fill="#22c55e" filter="url(#glowStrong)"/></g></g>
-        {/* Metric cards */}
         <g filter="url(#shadow)" style={{animation:'sIn .7s .3s both'}}><rect x="4" y="26" width="118" height="54" rx="12" fill="white" opacity="0.96"/><text x="14" y="47" fontSize="10" fill="#65676b" fontWeight="600" letterSpacing="0.5">ACTIVE BIDS</text><text x="14" y="67" fontSize="20" fill="#0064e0" fontWeight="800">2,847</text><circle cx="106" cy="42" r="5" fill="#22c55e" opacity="0.9"/></g>
         <g filter="url(#shadow)" style={{animation:'sIn .7s .55s both'}}><rect x="290" y="8" width="126" height="54" rx="12" fill="white" opacity="0.96"/><text x="300" y="29" fontSize="10" fill="#65676b" fontWeight="600" letterSpacing="0.5">ORDERS TODAY</text><text x="300" y="49" fontSize="20" fill="#0064e0" fontWeight="800">₹1.4Cr</text><text x="300" y="60" fontSize="9" fill="#22c55e" fontWeight="700">↑ 12% vs yesterday</text></g>
         <g filter="url(#shadow)" style={{animation:'sIn .7s .8s both'}}><rect x="8" y="348" width="130" height="54" rx="12" fill="white" opacity="0.96"/><text x="18" y="369" fontSize="10" fill="#65676b" fontWeight="600" letterSpacing="0.5">SUCCESS RATE</text><text x="18" y="389" fontSize="20" fill="#0064e0" fontWeight="800">98.4%</text><rect x="18" y="393" width="100" height="4" rx="2" fill="#e8edf5"/><rect x="18" y="393" width="98" height="4" rx="2" fill="#0064e0"/></g>
@@ -252,7 +242,6 @@ function IndustrialWidget() {
   )
 }
 
-/* ─────────── Particles ─────────── */
 function Particles({ color='#0064e0', count=36 }: { color?:string; count?:number }) {
   const ref = useRef<HTMLCanvasElement>(null)
   useEffect(() => {
@@ -276,7 +265,6 @@ function Particles({ color='#0064e0', count=36 }: { color?:string; count?:number
   return <canvas ref={ref} style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none' }}/>
 }
 
-/* ─────────── Counter ─────────── */
 function useCounter(target: number) {
   const [n, setN] = useState(0); const ref = useRef<HTMLSpanElement>(null)
   useEffect(() => {
@@ -297,51 +285,243 @@ function StatCard({ value, suffix, label, delay=0 }: { value:number; suffix:stri
   )
 }
 
-/* ─────────── Mobile App Preview ─────────── */
+/* ─────────── MOBILE APP PREVIEW WITH MULTIPLE SCREENS ─────────── */
 function MobileAppPreview() {
+  const [screen, setScreen] = useState('home')
+  const [phoneInput, setPhoneInput] = useState('')
+  const [otpInput, setOtpInput] = useState('')
+
   return (
     <div className="phone-mockup" style={{ '--order-bg':'#EBF4FF' } as React.CSSProperties}>
       <div className="phone-screen">
-        <div className="phone-header">
-          <div className="phone-greeting">Welcome Prashanth 👋</div>
-          <div className="phone-avatar">P</div>
-        </div>
-        <input type="text" className="phone-search" placeholder="What do you need manufactured?" readOnly/>
-        <div style={{ padding:'16px 20px 12px' }}>
-          <div style={{ fontSize:13, fontWeight:700, color:'#0064e0', background:'#ebf4ff', padding:'8px 12px', borderRadius:8, display:'inline-block', marginBottom:10 }}>Order #NB-4829 · In Transit</div>
-          <div className="phone-progress-bar"><div className="phone-progress-fill" style={{ width:'65%' }}/></div>
-        </div>
-        <div className="phone-section-title">Active Orders</div>
-        {ACTIVE_ORDERS.map(order=>(
-          <div key={order.id} className="phone-order-card" style={{ '--order-bg':order.color } as React.CSSProperties}>
-            <div className="phone-order-header">
-              <div className="phone-order-icon">{order.icon}</div>
-              <div className="phone-order-info">
-                <div className="phone-order-title">{order.product} — {order.quantity}</div>
-                <div className="phone-order-subtitle">{order.manufacturer}</div>
-                <div className="phone-order-status"><span>●</span> {order.status}</div>
-              </div>
+        
+        {/* LOGIN SCREEN */}
+        {screen === 'login' && (
+          <div style={{ display:'flex', flexDirection:'column', padding:'40px 24px', height:'100%', justifyContent:'center' }}>
+            <div style={{ marginBottom:40, textAlign:'center' }}>
+              <div style={{ fontSize:28, fontWeight:800, color:'#0064e0', marginBottom:8 }}>NexaBid</div>
+              <div style={{ fontSize:14, color:'#6b7280' }}>Post orders, source faster</div>
             </div>
-            <div className="phone-progress-bar"><div className="phone-progress-fill" style={{ width:`${order.progress}%` }}/></div>
-            <div className="phone-order-meta">
-              <div className="phone-meta-item"><div className="phone-meta-label">Date & Time</div><div className="phone-meta-value">{order.date}</div></div>
-              <div className="phone-meta-item"><div className="phone-meta-label">Bid Price</div><div className="phone-meta-value" style={{ color:'#0064e0' }}>{order.price}</div></div>
-              <div className="phone-meta-item"><div className="phone-meta-label">Payment</div><div className="phone-meta-value" style={{ color:'#22c55e', textTransform:'capitalize' }}>{order.payment}</div></div>
+            
+            <div style={{ marginBottom:20 }}>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'#1c1e21', marginBottom:8 }}>Phone Number</label>
+              <input 
+                type="tel" 
+                placeholder="+91 98765 43210"
+                value={phoneInput}
+                onChange={e => setPhoneInput(e.target.value)}
+                style={{ width:'100%', padding:'12px 16px', border:'1px solid #d1d5db', borderRadius:12, fontSize:14, fontFamily:'inherit', color:'#0d1117' }}
+              />
+            </div>
+
+            <button 
+              onClick={() => setScreen('otp')}
+              style={{ width:'100%', padding:14, background:'#0064e0', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit', marginBottom:14 }}>
+              Send OTP
+            </button>
+
+            <button 
+              onClick={() => setScreen('register')}
+              style={{ width:'100%', padding:14, background:'white', color:'#0064e0', border:'1.5px solid #0064e0', borderRadius:12, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+              Create Account
+            </button>
+          </div>
+        )}
+
+        {/* REGISTER SCREEN */}
+        {screen === 'register' && (
+          <div style={{ display:'flex', flexDirection:'column', padding:'40px 24px', height:'100%', overflow:'auto' }}>
+            <div style={{ marginBottom:32, textAlign:'center' }}>
+              <div style={{ fontSize:24, fontWeight:800, color:'#0d1117', marginBottom:4 }}>Create Account</div>
+              <div style={{ fontSize:12, color:'#6b7280' }}>Join NexaBid today</div>
+            </div>
+
+            <div style={{ marginBottom:16 }}>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'#1c1e21', marginBottom:6 }}>Full Name</label>
+              <input type="text" placeholder="John Doe" style={{ width:'100%', padding:'10px 14px', border:'1px solid #d1d5db', borderRadius:10, fontSize:13, fontFamily:'inherit' }}/>
+            </div>
+
+            <div style={{ marginBottom:16 }}>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'#1c1e21', marginBottom:6 }}>Company Name</label>
+              <input type="text" placeholder="Your Company" style={{ width:'100%', padding:'10px 14px', border:'1px solid #d1d5db', borderRadius:10, fontSize:13, fontFamily:'inherit' }}/>
+            </div>
+
+            <div style={{ marginBottom:16 }}>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'#1c1e21', marginBottom:6 }}>Phone Number</label>
+              <input type="tel" placeholder="+91 98765 43210" style={{ width:'100%', padding:'10px 14px', border:'1px solid #d1d5db', borderRadius:10, fontSize:13, fontFamily:'inherit' }}/>
+            </div>
+
+            <div style={{ marginBottom:20 }}>
+              <label style={{ display:'block', fontSize:12, fontWeight:700, color:'#1c1e21', marginBottom:6 }}>Email</label>
+              <input type="email" placeholder="you@company.com" style={{ width:'100%', padding:'10px 14px', border:'1px solid #d1d5db', borderRadius:10, fontSize:13, fontFamily:'inherit' }}/>
+            </div>
+
+            <button 
+              onClick={() => setScreen('otp')}
+              style={{ width:'100%', padding:12, background:'#0064e0', color:'white', border:'none', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit', marginBottom:10 }}>
+              Create Account
+            </button>
+
+            <button 
+              onClick={() => setScreen('login')}
+              style={{ width:'100%', padding:12, background:'white', color:'#0064e0', border:'1.5px solid #0064e0', borderRadius:10, fontSize:13, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+              Back to Login
+            </button>
+          </div>
+        )}
+
+        {/* OTP SCREEN */}
+        {screen === 'otp' && (
+          <div style={{ display:'flex', flexDirection:'column', padding:'50px 24px', height:'100%', justifyContent:'center' }}>
+            <div style={{ marginBottom:40, textAlign:'center' }}>
+              <div style={{ fontSize:20, fontWeight:800, color:'#0d1117', marginBottom:8 }}>Verify OTP</div>
+              <div style={{ fontSize:12, color:'#6b7280' }}>Enter the code sent to your phone</div>
+            </div>
+
+            <div style={{ marginBottom:30, display:'flex', gap:8, justifyContent:'center' }}>
+              {[0,1,2,3].map(i => (
+                <input
+                  key={i}
+                  type="text"
+                  maxLength={1}
+                  placeholder="0"
+                  value={otpInput[i] || ''}
+                  onChange={e => {
+                    const newOtp = otpInput.split('');
+                    newOtp[i] = e.target.value;
+                    setOtpInput(newOtp.join(''));
+                  }}
+                  style={{ width:50, height:50, fontSize:20, fontWeight:700, textAlign:'center', border:'1px solid #d1d5db', borderRadius:10, fontFamily:'inherit', color:'#0064e0' }}
+                />
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setScreen('home')}
+              style={{ width:'100%', padding:14, background:'#0064e0', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit', marginBottom:12 }}>
+              Verify & Login
+            </button>
+
+            <div style={{ textAlign:'center', fontSize:12, color:'#6b7280' }}>
+              Didn't receive code? <span style={{ color:'#0064e0', fontWeight:700, cursor:'pointer' }}>Resend</span>
             </div>
           </div>
-        ))}
+        )}
+
+        {/* HOME SCREEN */}
+        {screen === 'home' && (
+          <>
+            <div className="phone-header">
+              <div className="phone-greeting">Welcome Prashanth 👋</div>
+              <div className="phone-avatar">P</div>
+            </div>
+            <input type="text" className="phone-search" placeholder="What do you need manufactured?" readOnly/>
+            
+            <div style={{ padding:'16px 20px 12px' }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#0064e0', background:'#ebf4ff', padding:'8px 12px', borderRadius:8, display:'inline-block', marginBottom:10 }}>Order #NB-4829 · In Transit</div>
+              <div className="phone-progress-bar"><div className="phone-progress-fill" style={{ width:'65%' }}/></div>
+            </div>
+
+            <div className="phone-section-title">Active Orders</div>
+            {ACTIVE_ORDERS.map(order=>(
+              <div key={order.id} className="phone-order-card" style={{ '--order-bg':order.color, cursor:'pointer' } as React.CSSProperties} onClick={() => setScreen('delivery')}>
+                <div className="phone-order-header">
+                  <div className="phone-order-icon">{order.icon}</div>
+                  <div className="phone-order-info">
+                    <div className="phone-order-title">{order.product} — {order.quantity}</div>
+                    <div className="phone-order-subtitle">{order.manufacturer}</div>
+                    <div className="phone-order-status"><span>●</span> {order.status}</div>
+                  </div>
+                </div>
+                <div className="phone-progress-bar"><div className="phone-progress-fill" style={{ width:`${order.progress}%` }}/></div>
+                <div className="phone-order-meta">
+                  <div className="phone-meta-item"><div className="phone-meta-label">Date</div><div className="phone-meta-value">{order.date}</div></div>
+                  <div className="phone-meta-item"><div className="phone-meta-label">Price</div><div className="phone-meta-value" style={{ color:'#0064e0' }}>{order.price}</div></div>
+                  <div className="phone-meta-item"><div className="phone-meta-label">Payment</div><div className="phone-meta-value" style={{ color:'#22c55e' }}>{order.payment}</div></div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* DELIVERY TRACKING SCREEN */}
+        {screen === 'delivery' && (
+          <div style={{ padding:'0' }}>
+            <div style={{ background:'#0064e0', color:'white', padding:'20px', paddingTop:16 }}>
+              <button 
+                onClick={() => setScreen('home')}
+                style={{ background:'none', border:'none', color:'white', fontSize:18, cursor:'pointer', marginBottom:12 }}>
+                ← Back
+              </button>
+              <div style={{ fontSize:14, fontWeight:700, marginBottom:4 }}>Order #NB-4829</div>
+              <div style={{ fontSize:12, color:'rgba(255,255,255,0.8)' }}>Cotton Fabric • 500 kg</div>
+            </div>
+
+            <div style={{ padding:'24px' }}>
+              <div style={{ marginBottom:24 }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'#0d1117', marginBottom:12 }}>📍 Shipment Status</div>
+                
+                {[
+                  { status:'Order Confirmed', time:'Jan 9 · 10:30 AM', done:true },
+                  { status:'Production Started', time:'Jan 10 · 2:45 PM', done:true },
+                  { status:'Quality Check', time:'Jan 12 · 8:00 AM', done:true },
+                  { status:'In Transit', time:'Jan 15 · 4:20 PM', done:true },
+                  { status:'Out for Delivery', time:'Jan 18 · 9:00 AM', done:false },
+                  { status:'Delivered', time:'Today', done:false }
+                ].map((item, i) => (
+                  <div key={i} style={{ display:'flex', gap:12, marginBottom:16, opacity:item.done?1:0.5 }}>
+                    <div style={{ position:'relative', width:24, display:'flex', flexDirection:'column', alignItems:'center' }}>
+                      <div style={{ width:20, height:20, borderRadius:'50%', background:item.done?'#22c55e':'#e5e7eb', border:`2px solid ${item.done?'#22c55e':'#d1d5db'}`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        {item.done && <span style={{ color:'white', fontSize:10, fontWeight:700 }}>✓</span>}
+                      </div>
+                      {i < 5 && <div style={{ width:2, height:16, background:item.done?'#22c55e':'#d1d5db', marginTop:4 }}/>}
+                    </div>
+                    <div style={{ flex:1, paddingTop:2 }}>
+                      <div style={{ fontSize:13, fontWeight:600, color:'#0d1117' }}>{item.status}</div>
+                      <div style={{ fontSize:11, color:'#858585', marginTop:2 }}>{item.time}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ background:'#f0f4ff', border:'1px solid rgba(0,100,224,0.2)', borderRadius:12, padding:16, marginBottom:16 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:'#0064e0', marginBottom:8 }}>📦 Shipping Details</div>
+                <div style={{ fontSize:12, color:'#6b7280', lineHeight:1.6 }}>
+                  <div><strong>From:</strong> Patel Textiles, Surat</div>
+                  <div><strong>To:</strong> Reliance Retail HQ, Mumbai</div>
+                  <div><strong>Tracking ID:</strong> NB-4829-SURAT</div>
+                  <div><strong>Carrier:</strong> Professional Logistics</div>
+                </div>
+              </div>
+
+              <button style={{ width:'100%', padding:14, background:'#0064e0', color:'white', border:'none', borderRadius:12, fontSize:14, fontWeight:700, cursor:'pointer', fontFamily:'inherit' }}>
+                Confirm Delivery (OTP)
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
+
+      {/* TAB BAR */}
       <div className="phone-tab-bar">
-        <div className="phone-tab active"><div className="phone-tab-icon">🏠</div>Home</div>
-        <div className="phone-tab"><div className="phone-tab-icon">📦</div>Orders</div>
-        <div className="phone-tab"><div className="phone-tab-icon">🏷️</div>Bids</div>
-        <div className="phone-tab"><div className="phone-tab-icon">👤</div>Profile</div>
+        <div className="phone-tab" onClick={() => setScreen('home')} style={{ cursor:'pointer', opacity:['home','delivery'].includes(screen)?1:0.5, color:['home','delivery'].includes(screen)?'#0064e0':'#ccc' }}>
+          <div className="phone-tab-icon">🏠</div>Home
+        </div>
+        <div className="phone-tab" style={{ cursor:'pointer' }}>
+          <div className="phone-tab-icon">📦</div>Orders
+        </div>
+        <div className="phone-tab" style={{ cursor:'pointer' }}>
+          <div className="phone-tab-icon">🏷️</div>Bids
+        </div>
+        <div className="phone-tab" onClick={() => setScreen('login')} style={{ cursor:'pointer', opacity:screen==='login'?1:0.5, color:screen==='login'?'#0064e0':'#ccc' }}>
+          <div className="phone-tab-icon">👤</div>Profile
+        </div>
       </div>
     </div>
   )
 }
 
-/* ─────────── Process Stepper ─────────── */
 function ProcessStepper() {
   const [active, setActive] = useState(0), [prog, setProg] = useState(0), [key, setKey] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval>|null>(null)
@@ -390,7 +570,6 @@ function ProcessStepper() {
   )
 }
 
-/* ─────────── Hero Carousel ─────────── */
 function HeroCarousel({ navigate: _nav }: { navigate:(p:Page)=>void }) {
   const [idx, setIdx] = useState(0), [animKey, setAnimKey] = useState(0), [autoProgress, setAutoProgress] = useState(0)
   const isDrag=useRef(false), sx=useRef(0), dx=useRef(0)
@@ -456,7 +635,6 @@ function HeroCarousel({ navigate: _nav }: { navigate:(p:Page)=>void }) {
         </div>
       </div>
 
-      {/* Stat bar */}
       <div style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:12, display:'flex', alignItems:'stretch', background:'rgba(4,8,15,0.82)', backdropFilter:'blur(24px)', borderTop:'1px solid rgba(255,255,255,0.08)' }}>
         {[{val:'1,200+',label:'Verified Manufacturers'},{val:'₹240Cr+',label:'GMV Processed'},{val:'48h',label:'Avg Bid Response'},{val:'98%',label:'Escrow Success Rate'}].map((b,i)=>(
           <div key={i} style={{ flex:1, padding:'14px 0', textAlign:'center', borderRight:i<3?'1px solid rgba(255,255,255,0.07)':'none' }}>
@@ -466,7 +644,6 @@ function HeroCarousel({ navigate: _nav }: { navigate:(p:Page)=>void }) {
         ))}
       </div>
 
-      {/* Arrows */}
       {([{side:'left' as const,action:()=>goTo(idx-1),icon:'‹'},{side:'right' as const,action:()=>goTo(idx+1),icon:'›'}]).map(btn=>(
         <button key={btn.side} onClick={btn.action}
           style={{ position:'absolute', zIndex:20, top:'calc(50% - 30px)', transform:'translateY(-50%)', [btn.side]:'clamp(14px,2.5vw,32px)', width:46, height:46, borderRadius:'50%', background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.18)', backdropFilter:'blur(16px)', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontSize:24, fontWeight:300, outline:'none', transition:'background .2s,transform .2s' }}
@@ -475,7 +652,6 @@ function HeroCarousel({ navigate: _nav }: { navigate:(p:Page)=>void }) {
           onPointerDown={e=>e.stopPropagation()}>{btn.icon}</button>
       ))}
 
-      {/* Slide dots */}
       <div style={{ position:'absolute', bottom:72, right:'clamp(20px,5vw,80px)', zIndex:13, display:'flex', flexDirection:'column', alignItems:'flex-end', gap:10 }}>
         <span style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'.14em' }}>{String(idx+1).padStart(2,'0')} / {String(HERO_SLIDES.length).padStart(2,'0')}</span>
         <div style={{ display:'flex', gap:6, alignItems:'center' }}>
@@ -490,7 +666,6 @@ function HeroCarousel({ navigate: _nav }: { navigate:(p:Page)=>void }) {
   )
 }
 
-/* ─────────── Draggable Carousel ─────────── */
 function Drag({ children, pl='clamp(20px,5vw,96px)' }: { children:React.ReactNode; pl?:string }) {
   const ref = useRef<HTMLDivElement>(null)
   const drag=useRef(false), sx=useRef(0), sl=useRef(0), vel=useRef(0), lx=useRef(0), raf=useRef(0)
@@ -500,7 +675,6 @@ function Drag({ children, pl='clamp(20px,5vw,96px)' }: { children:React.ReactNod
   return <div ref={ref} style={{ overflowX:'auto', cursor:'grab', scrollbarWidth:'none', WebkitOverflowScrolling:'touch', userSelect:'none', paddingLeft:pl }} onPointerDown={onD} onPointerMove={onM} onPointerUp={onU} onPointerCancel={onU}>{children}</div>
 }
 
-/* ─────────── Reveal Hook ─────────── */
 function useReveal() {
   useEffect(()=>{
     const obs=new IntersectionObserver(entries=>entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('on') }),{threshold:.07})
@@ -509,7 +683,6 @@ function useReveal() {
   },[])
 }
 
-/* ─────────── Main ─────────── */
 export default function LandingPage({ navigate }: Props) {
   useReveal()
   const [activeTesti, setActiveTesti] = useState(0)
@@ -519,7 +692,7 @@ export default function LandingPage({ navigate }: Props) {
     <div style={{ minHeight:'100vh', background:'white', fontFamily:"'Plus Jakarta Sans',-apple-system,sans-serif", WebkitFontSmoothing:'antialiased' }}>
       <style>{CSS}</style>
 
-      {/* ── NAV ── */}
+      {/* NAV */}
       <nav style={{ position:'sticky', top:0, zIndex:100, background:'rgba(255,255,255,.92)', backdropFilter:'blur(24px)', borderBottom:'1px solid rgba(228,230,235,.7)' }}>
         <div className="mc" style={{ display:'flex', alignItems:'center', height:76 }}>
           <div style={{ display:'flex', alignItems:'center', gap:11, marginRight:48, flexShrink:0 }}>
@@ -544,10 +717,10 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </nav>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <HeroCarousel navigate={navigate}/>
 
-      {/* ── STATS ── */}
+      {/* STATS */}
       <section style={{ padding:'52px 0', background:'#ffffff', borderBottom:'1px solid #edf0f7' }}>
         <div className="mc">
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(250px,1fr))', gap:20 }}>
@@ -558,7 +731,7 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </section>
 
-      {/* ── MOBILE APP SECTION ── */}
+      {/* MOBILE APP SECTION */}
       <section className="mobile-app-section">
         <div className="mc">
           <div className="mobile-app-container">
@@ -581,7 +754,7 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </section>
 
-      {/* ── WHY NEXABID ── */}
+      {/* Continue with rest of sections - same as original */}
       <section style={{ padding:'clamp(72px,9vw,120px) 0', background:'#ffffff', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:-120, right:-120, width:600, height:600, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,100,224,0.04) 0%,transparent 70%)', pointerEvents:'none' }}/>
         <div className="mc">
@@ -592,18 +765,12 @@ export default function LandingPage({ navigate }: Props) {
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit,minmax(300px,1fr))', gap:22 }}>
             {[
-              { accent:'#0064e0', delay:0,   title:'AI Bid Scoring',    desc:'Our ML engine scores every manufacturer bid on price competitiveness, delivery reliability, and quality — in real time.',    img:'https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#0064e0" fillOpacity=".1"/><path d="M8 24l5-6 4 4 5-7 6 9" stroke="#0064e0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="27" cy="10" r="3" fill="#0064e0"/></svg> },
-              { accent:'#059669', delay:60,  title:'Escrow Protection', desc:'Funds locked in Razorpay escrow. Released only when you confirm delivery via OTP. Zero payment risk, guaranteed.',       img:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#059669" fillOpacity=".1"/><path d="M18 6l10 3.5v9c0 6-4.5 9.5-10 11-5.5-1.5-10-5-10-11V9.5L18 6z" stroke="#059669" strokeWidth="2" strokeLinejoin="round"/><path d="M14 18l3 3 6-6" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-              { accent:'#d97706', delay:120, title:'48-Hour Response',   desc:'Post an order and receive competitive bids from verified manufacturers within 48 hours — or we find you one.',             img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#d97706" fillOpacity=".1"/><circle cx="18" cy="18" r="9" stroke="#d97706" strokeWidth="2"/><path d="M18 12v6l4 2" stroke="#d97706" strokeWidth="2.2" strokeLinecap="round"/></svg> },
-              { accent:'#7c3aed', delay:180, title:'Real-Time Tracking', desc:'Live order status from production floor to your doorstep. GPS tracking, milestone alerts, and full transparency.',          img:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#7c3aed" fillOpacity=".1"/><path d="M8 20h4l3-8 4 14 3-10 3 4h3" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-              { accent:'#0064e0', delay:240, title:'GST-Ready Invoicing', desc:'Automated GST-compliant invoices for every transaction. Seamlessly integrates with your accounting software.',           img:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#0064e0" fillOpacity=".1"/><rect x="9" y="6" width="14" height="20" rx="2" stroke="#0064e0" strokeWidth="2"/><path d="M12 12h8M12 16h8M12 20h5" stroke="#0064e0" strokeWidth="1.8" strokeLinecap="round"/><circle cx="24" cy="24" r="5" fill="white" stroke="#0064e0" strokeWidth="1.8"/><path d="M22 24l1.5 1.5L26 22" stroke="#0064e0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-              { accent:'#dc2626', delay:300, title:'Pan-India Network',   desc:'1,200+ verified manufacturers across 24 states. Textiles, metals, electronics, pharma and 12 more categories.',           img:'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=90&auto=format&fit=crop',
-                svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#dc2626" fillOpacity=".1"/><circle cx="18" cy="18" r="9" stroke="#dc2626" strokeWidth="2"/><path d="M9 18h18M18 9c-3 3-4.5 6-4.5 9s1.5 6 4.5 9M18 9c3 3 4.5 6 4.5 9s-1.5 6-4.5 9" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+              { accent:'#0064e0', delay:0,   title:'AI Bid Scoring',    desc:'Our ML engine scores every manufacturer bid on price competitiveness, delivery reliability, and quality — in real time.',    img:'https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#0064e0" fillOpacity=".1"/><path d="M8 24l5-6 4 4 5-7 6 9" stroke="#0064e0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/><circle cx="27" cy="10" r="3" fill="#0064e0"/></svg> },
+              { accent:'#059669', delay:60,  title:'Escrow Protection', desc:'Funds locked in Razorpay escrow. Released only when you confirm delivery via OTP. Zero payment risk, guaranteed.',       img:'https://media.assettype.com/outlookmoney/2025-07-21/yvd3jsad/Escrow-Account.png?w=640&auto=format%2Ccompress&fit=max&format=webp&dpr=1.0?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#059669" fillOpacity=".1"/><path d="M18 6l10 3.5v9c0 6-4.5 9.5-10 11-5.5-1.5-10-5-10-11V9.5L18 6z" stroke="#059669" strokeWidth="2" strokeLinejoin="round"/><path d="M14 18l3 3 6-6" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+              { accent:'#d97706', delay:120, title:'48-Hour Response',   desc:'Post an order and receive competitive bids from verified manufacturers within 48 hours — or we find you one.',             img:'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIrIc4O6MPxmTooQWTGD0Y66joSIkvaZx6eQ&s?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#d97706" fillOpacity=".1"/><circle cx="18" cy="18" r="9" stroke="#d97706" strokeWidth="2"/><path d="M18 12v6l4 2" stroke="#d97706" strokeWidth="2.2" strokeLinecap="round"/></svg> },
+              { accent:'#7c3aed', delay:180, title:'Real-Time Tracking', desc:'Live order status from production floor to your doorstep. GPS tracking, milestone alerts, and full transparency.',          img:'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#7c3aed" fillOpacity=".1"/><path d="M8 20h4l3-8 4 14 3-10 3 4h3" stroke="#7c3aed" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+              { accent:'#0064e0', delay:240, title:'GST-Ready Invoicing', desc:'Automated GST-compliant invoices for every transaction. Seamlessly integrates with your accounting software.',           img:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#0064e0" fillOpacity=".1"/><rect x="9" y="6" width="14" height="20" rx="2" stroke="#0064e0" strokeWidth="2"/><path d="M12 12h8M12 16h8M12 20h5" stroke="#0064e0" strokeWidth="1.8" strokeLinecap="round"/><circle cx="24" cy="24" r="5" fill="white" stroke="#0064e0" strokeWidth="1.8"/><path d="M22 24l1.5 1.5L26 22" stroke="#0064e0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+              { accent:'#dc2626', delay:300, title:'Pan-India Network',   desc:'1,200+ verified manufacturers across 24 states. Textiles, metals, electronics, pharma and 12 more categories.',           img:'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=600&q=90&auto=format&fit=crop', svg:<svg width="36" height="36" viewBox="0 0 36 36" fill="none"><rect width="36" height="36" rx="10" fill="#dc2626" fillOpacity=".1"/><circle cx="18" cy="18" r="9" stroke="#dc2626" strokeWidth="2"/><path d="M9 18h18M18 9c-3 3-4.5 6-4.5 9s1.5 6 4.5 9M18 9c3 3 4.5 6 4.5 9s-1.5 6-4.5 9" stroke="#dc2626" strokeWidth="1.8" strokeLinecap="round"/></svg> },
             ].map((f,i)=>(
               <div key={f.title} className="fc rv" style={{ transitionDelay:`${f.delay}ms`, background:'white', border:'1px solid #edf0f7', borderRadius:22, overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,.05)', cursor:'default' }}>
                 <div style={{ position:'relative', height:140, overflow:'hidden' }}>
@@ -624,16 +791,14 @@ export default function LandingPage({ navigate }: Props) {
       </section>
       <div className="sec-line"/>
 
-      {/* ── PLATFORM INTELLIGENCE + 3D GEAR WIDGET ── */}
+      {/* Remaining sections omitted for brevity - they're identical to original */}
       <section style={{ padding:'clamp(60px,8vw,110px) 0', background:'#080f1e', overflow:'hidden', position:'relative' }}>
         <Particles color="#0064e0" count={50}/>
         <div style={{ position:'absolute', top:'50%', left:'35%', transform:'translate(-50%,-50%)', width:600, height:600, borderRadius:'50%', background:'radial-gradient(circle,rgba(0,100,224,.12) 0%,transparent 70%)', pointerEvents:'none' }}/>
         <div className="mc" style={{ position:'relative', zIndex:2, display:'flex', alignItems:'center', gap:'clamp(32px,6vw,80px)', flexWrap:'wrap' }}>
           <div style={{ flex:1, minWidth:280 }}>
             <div className="pill rvl" style={{ background:'rgba(0,100,224,.15)', borderColor:'rgba(0,100,224,.3)' }}><span className="pill-d"/>Platform Intelligence</div>
-            <h2 className="rvl d1" style={{ fontSize:'clamp(28px,3.8vw,50px)', fontWeight:800, color:'white', letterSpacing:'-.03em', lineHeight:1.1, marginBottom:24 }}>
-              Industrial-grade<br/><span className="gt">AI at the core</span><br/>of every bid.
-            </h2>
+            <h2 className="rvl d1" style={{ fontSize:'clamp(28px,3.8vw,50px)', fontWeight:800, color:'white', letterSpacing:'-.03em', lineHeight:1.1, marginBottom:24 }}>Industrial-grade<br/><span className="gt">AI at the core</span><br/>of every bid.</h2>
             <p className="rvl d2" style={{ fontSize:16, color:'rgba(255,255,255,.6)', lineHeight:1.75, maxWidth:400, marginBottom:36 }}>Our machine learning engine processes thousands of historical bids to score manufacturers on price competitiveness, delivery reliability, and quality consistency — in real time.</p>
             {[{label:'AI Bid Scoring',val:'98.4% accuracy'},{label:'Fraud Detection',val:'0 cases in 2024'},{label:'Avg. Response',val:'< 4 hours'},{label:'Payment Release',val:'Instant OTP'}].map((f,i)=>(
               <div key={f.label} className={`rvl d${i+3}`} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'14px 20px', background:'rgba(255,255,255,.05)', border:'1px solid rgba(255,255,255,.08)', borderRadius:14, marginBottom:10, backdropFilter:'blur(8px)' }}>
@@ -648,7 +813,6 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </section>
 
-      {/* ── TRUST LOGOS ── */}
       <section style={{ padding:'44px 0', background:'#f7f9fc', borderTop:'1px solid #edf0f7', borderBottom:'1px solid #edf0f7', overflow:'hidden' }}>
         <div className="mc" style={{ marginBottom:18 }}>
           <p className="rv" style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'.25em', color:'#9ca3af', textAlign:'center' }}>Trusted by India's Leading Enterprises</p>
@@ -663,7 +827,6 @@ export default function LandingPage({ navigate }: Props) {
       </section>
       <div className="sec-line"/>
 
-      {/* ── CATEGORIES ── */}
       <section style={{ padding:'clamp(60px,8vw,110px) 0', background:'#ffffff' }}>
         <div className="mc" style={{ marginBottom:44 }}>
           <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', gap:20, flexWrap:'wrap' }}>
@@ -696,7 +859,6 @@ export default function LandingPage({ navigate }: Props) {
       </section>
       <div className="sec-line"/>
 
-      {/* ── HOW IT WORKS ── */}
       <section id="how" style={{ padding:'clamp(60px,8vw,120px) 0', background:'#f7f9fc' }}>
         <div className="mc">
           <div style={{ textAlign:'center', marginBottom:56 }}>
@@ -708,7 +870,6 @@ export default function LandingPage({ navigate }: Props) {
       </section>
       <div className="sec-line"/>
 
-      {/* ── PORTALS ── */}
       <section style={{ padding:'clamp(60px,8vw,120px) 0', background:'#080f1e', position:'relative', overflow:'hidden' }}>
         <Particles color="#0064e0" count={28}/>
         <div className="mc" style={{ position:'relative', zIndex:2 }}>
@@ -739,7 +900,6 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
       <section style={{ padding:'clamp(60px,8vw,120px) 0', background:'#ffffff' }}>
         <div className="mc">
           <div style={{ textAlign:'center', marginBottom:52 }}>
@@ -766,7 +926,6 @@ export default function LandingPage({ navigate }: Props) {
       </section>
       <div className="sec-line"/>
 
-      {/* ── NEWS ── */}
       <section style={{ padding:'clamp(60px,7vw,100px) 0', background:'#f7f9fc' }}>
         <div className="mc" style={{ marginBottom:40 }}>
           <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', gap:20, flexWrap:'wrap' }}>
@@ -796,7 +955,6 @@ export default function LandingPage({ navigate }: Props) {
         </Drag>
       </section>
 
-      {/* ── CTA ── */}
       <section style={{ padding:'clamp(72px,9vw,120px) 0', background:'#080f1e', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', inset:0, backgroundImage:'linear-gradient(rgba(0,100,224,0.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,100,224,0.07) 1px,transparent 1px)', backgroundSize:'52px 52px', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:800, height:500, borderRadius:'50%', background:'radial-gradient(ellipse,rgba(0,100,224,0.22) 0%,transparent 65%)', pointerEvents:'none' }}/>
@@ -817,11 +975,9 @@ export default function LandingPage({ navigate }: Props) {
         </div>
       </section>
 
-      {/* ── FOOTER — Full 4-column grid with CIN/GST ── */}
       <footer style={{ background:'#050a14', paddingTop:80, paddingBottom:32, borderTop:'1px solid rgba(255,255,255,0.06)' }}>
         <div className="mc">
           <div style={{ display:'grid', gridTemplateColumns:'2fr 1fr 1fr 1fr', gap:60, marginBottom:64 }}>
-            {/* Brand col */}
             <div>
               <div style={{ display:'flex', alignItems:'center', gap:11, marginBottom:20 }}>
                 <div style={{ width:38, height:38, background:'#0064e0', borderRadius:11, display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 14px rgba(0,100,224,.35)' }}>
@@ -836,7 +992,6 @@ export default function LandingPage({ navigate }: Props) {
                 ))}
               </div>
             </div>
-            {/* Link cols */}
             {[
               { head:'Platform', links:['For Buyers','For Manufacturers','Pricing','AI Features','Escrow System','Order Tracking'] },
               { head:'Company',  links:['About Us','Careers','Blog','Press','Contact'] },
@@ -858,7 +1013,6 @@ export default function LandingPage({ navigate }: Props) {
               </div>
             ))}
           </div>
-          {/* Bottom bar */}
           <div style={{ borderTop:'1px solid rgba(255,255,255,.07)', paddingTop:24, display:'flex', justifyContent:'space-between', alignItems:'center', flexWrap:'wrap', gap:12 }}>
             <p style={{ color:'#4b5563', fontSize:12 }}>© 2025 NexaBid Technologies Pvt. Ltd. · CIN: U74999MH2024PTC000001 · GST: 27AAAXX0000X1ZX</p>
             <div style={{ display:'flex', alignItems:'center', gap:8 }}>
